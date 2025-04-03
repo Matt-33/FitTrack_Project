@@ -1,0 +1,137 @@
+@use "../styles/variables.scss";
+@use "../styles/mixins.scss";
+@use "sass:color";
+
+.home {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	min-height: 100vh;
+	background: variables.$background-color;
+	color: variables.$text-color;
+	padding: 1rem;
+}
+
+// 🏠 Header
+.header {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem;
+	background: variables.$secondary-color;
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	z-index: 1000;
+
+	.logo {
+		font-size: 1.5rem;
+		font-weight: bold;
+		color: variables.$primary-color;
+	}
+
+	.burger-menu {
+		font-size: 2rem;
+		cursor: pointer;
+		color: variables.$text-color;
+	}
+}
+
+// 🎯 Hero Section
+.hero {
+	margin-top: 5rem;
+	padding: 2rem 1rem;
+	text-align: center;
+
+	.title {
+		font-size: 2rem;
+		margin-bottom: 0.5rem;
+	}
+
+	.subtitle {
+		font-size: 1.2rem;
+		color: color.adjust(variables.$text-color, $lightness: 20%);
+	}
+
+	.cta {
+		@include mixins.button-style;
+		margin-top: 1.5rem;
+	}
+}
+
+// 🏋️‍♂️ Features Section
+.features {
+	margin-top: 3rem;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1rem;
+	padding: 1rem;
+
+	.feature {
+		background: variables.$secondary-color;
+		padding: 1rem;
+		border-radius: 10px;
+		width: 90%;
+		max-width: 400px;
+		font-size: 1.1rem;
+		font-weight: bold;
+	}
+}
+
+// 📌 Footer
+.footer {
+	margin-top: auto;
+	padding: 1rem;
+	text-align: center;
+	font-size: 0.9rem;
+
+	a {
+		color: variables.$primary-color;
+		text-decoration: none;
+		font-weight: bold;
+	}
+}
+
+// 📱 Responsive Design
+@include mixins.respond(tablet) {
+	.hero {
+		.title {
+			font-size: 2.5rem;
+		}
+		.subtitle {
+			font-size: 1.5rem;
+		}
+	}
+
+	.features {
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+
+		.feature {
+			width: 45%;
+		}
+	}
+}
+
+@include mixins.respond(desktop) {
+	.hero {
+		.title {
+			font-size: 3rem;
+		}
+		.subtitle {
+			font-size: 1.8rem;
+		}
+	}
+
+	.features {
+		.feature {
+			width: 30%;
+		}
+	}
+}

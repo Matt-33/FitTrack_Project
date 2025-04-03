@@ -1,0 +1,44 @@
+@use "sass:color";
+@use "./variables.scss";
+
+// 🔄 Mixin pour le responsive design
+@mixin respond($breakpoint) {
+	@if $breakpoint == mobile {
+		@media (max-width: 480px) {
+			@content;
+		}
+	}
+	@if $breakpoint == tablet {
+		@media (max-width: 768px) {
+			@content;
+		}
+	}
+	@if $breakpoint == desktop {
+		@media (max-width: 1024px) {
+			@content;
+		}
+	}
+}
+
+// 🎨 Boutons stylés
+@mixin button-style {
+	background: variables.$primary-color;
+	color: variables.$text-color;
+	padding: 10px 15px;
+	border: none;
+	border-radius: 5px;
+	cursor: pointer;
+	font-weight: bold;
+	transition: all 0.3s ease-in-out;
+	box-shadow: 0px 4px 10px rgba(0, 255, 136, 0.3);
+
+	&:hover {
+		background: color.adjust(variables.$primary-color, $lightness: -10%);
+		transform: scale(1.05);
+	}
+
+	&:active {
+		transform: scale(0.95);
+		box-shadow: 0px 2px 5px rgba(0, 255, 136, 0.2);
+	}
+}

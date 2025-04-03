@@ -1,0 +1,113 @@
+@use "../styles/variables.scss";
+@use "../styles/mixins.scss" as *;
+
+.navbar {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 1rem 2rem;
+	background: variables.$secondary-color;
+	color: variables.$text-color;
+	position: relative;
+
+	h1 {
+		font-size: 1.8rem;
+	}
+
+	.nav-links {
+		list-style: none;
+		display: flex;
+		gap: 1.5rem;
+
+		li a {
+			color: variables.$text-color;
+			text-decoration: none;
+			font-weight: bold;
+			transition: color 0.3s ease-in-out;
+
+			&:hover {
+				color: variables.$primary-color;
+			}
+		}
+
+		li button {
+			background: none;
+			border: none;
+			color: variables.$text-color;
+			font-weight: bold;
+			cursor: pointer;
+			transition: color 0.3s ease-in-out;
+
+			&:hover {
+				color: variables.$primary-color;
+			}
+		}
+	}
+
+	// 🎭 Menu burger
+	.burger-menu {
+		display: none;
+		flex-direction: column;
+		gap: 5px;
+		cursor: pointer;
+
+		.bar {
+			width: 30px;
+			height: 4px;
+			background: variables.$text-color;
+			transition: all 0.3s ease-in-out;
+		}
+
+		&:hover .bar {
+			background: variables.$primary-color;
+		}
+
+		.bar.open:nth-child(1) {
+			transform: translateY(8px) rotate(45deg);
+		}
+
+		.bar.open:nth-child(2) {
+			opacity: 0;
+		}
+
+		.bar.open:nth-child(3) {
+			transform: translateY(-8px) rotate(-45deg);
+		}
+	}
+
+	@include respond(mobile) {
+		.burger-menu {
+			display: flex;
+		}
+
+		.nav-links {
+			position: absolute;
+			top: 100%;
+			left: 0;
+			width: 100%;
+			background: variables.$secondary-color;
+			flex-direction: column;
+			align-items: center;
+			padding: 1rem 0;
+			gap: 1rem;
+			transform: translateY(-200%);
+			transition: transform 0.3s ease-in-out;
+
+			&.open {
+				transform: translateY(0);
+			}
+
+			li {
+				width: 100%;
+				text-align: center;
+
+				a,
+				button {
+					display: block;
+					width: 100%;
+					padding: 10px 0;
+				}
+			}
+		}
+	}
+}
