@@ -28,24 +28,12 @@ Graphiques affichant l'évolution des performances (ex : poids soulevé, temps s
 
 Historique des séances
 
-Objectifs personnalisés
-
 4️⃣ Catalogue d’Exercices
 Une base de données avec différents exercices (ex : Squat, Pompes, Deadlift...)
-
-Possibilité d’ajouter des vidéos explicatives
-
-Filtrage par groupe musculaire / équipement
-
-5️⃣ Système de Recommandations
-Proposer un programme personnalisé selon les objectifs de l’utilisateur (perte de poids, prise de muscle, endurance...)
 
 Suggestions basées sur les entraînements précédents
 
 Adaptée au mobile pour être utilisée facilement en salle de sport
-
-🎨 Idée de Design
-Interface simple et épurée, avec une dominance de couleurs bleu / noir / gris pour un effet sportif
 
 Dashboard clair, avec stats, derniers entraînements et objectifs
 
@@ -59,4 +47,4 @@ Faire un dashboard du backend avec handlebar ou tailwind simple et épuré qui p
 
 BDD : MySQL
 
-A la fin il faudra heberger le front et le back pour pouvoir présenter ca lors de l'examen
+A la fin il faudra heberger le front et le back (netlify, railway) pour pouvoir présenter ca lors de l'examen
