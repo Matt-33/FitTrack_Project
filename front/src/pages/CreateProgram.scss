@@ -1,0 +1,50 @@
+@use "../styles/variables.scss";
+@use "../styles/mixins.scss";
+
+.create-program {
+	max-width: 600px;
+	margin: 2rem auto;
+	background: variables.$secondary-color;
+	padding: 2rem;
+	border-radius: 8px;
+	color: variables.$text-color;
+
+	h2,
+	h3 {
+		color: variables.$primary-color;
+		text-align: center;
+	}
+
+	form {
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+
+		input,
+		select {
+			padding: 0.5rem;
+			border-radius: 5px;
+			border: none;
+			background: #1e1e1e;
+			color: white;
+		}
+
+		button {
+			@include mixins.button-style;
+			align-self: flex-start;
+		}
+
+		.exercise {
+			display: flex;
+			flex-wrap: wrap;
+			gap: 0.5rem;
+			background: #1c1c1c;
+			padding: 1rem;
+			border-radius: 5px;
+
+			input {
+				flex: 1 1 45%;
+			}
+		}
+	}
+}

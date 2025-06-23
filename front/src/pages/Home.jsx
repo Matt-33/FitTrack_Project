@@ -1,5 +1,5 @@
 import "./Home.scss";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 
@@ -7,12 +7,16 @@ const Home = () => {
 	const { user } = useContext(AuthContext);
 	const navigate = useNavigate();
 
-	const handleButtonClick = () => {
-		if (user) {
-			navigate("/dashboard");
-		} else {
-			navigate("/login");
-		}
+	const handleStart = () => {
+		navigate(user ? "/dashboard" : "/login");
+	};
+
+	const goToPrograms = () => {
+		navigate("/programs");
+	};
+
+	const goToDashboard = () => {
+		navigate("/dashboard");
 	};
 
 	return (
@@ -22,9 +26,22 @@ const Home = () => {
 				<p className="subtitle">
 					Entraîne-toi comme jamais avec notre app.
 				</p>
-				<button className="cta" onClick={handleButtonClick}>
-					Commencer
-				</button>
+				<div className="home-buttons">
+					<button className="cta" onClick={handleStart}>
+						Commencer
+					</button>
+					<button className="cta secondary" onClick={goToPrograms}>
+						Découvrir les programmes
+					</button>
+					{user && (
+						<button
+							className="cta secondary"
+							onClick={goToDashboard}
+						>
+							Mon suivi
+						</button>
+					)}
+				</div>
 			</section>
 
 			<section className="features">

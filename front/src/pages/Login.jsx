@@ -1,3 +1,4 @@
+import "./Login.scss";
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
@@ -11,7 +12,7 @@ const Login = () => {
 	const handleLogin = async (e) => {
 		e.preventDefault();
 
-		const fakeUser = { id: 1, name: "Matthias", email };
+		const fakeUser = { id: 1, name: "Matthias", email, role: "client" };
 		const fakeToken = "123456abcdef";
 
 		dispatch({
@@ -22,9 +23,9 @@ const Login = () => {
 	};
 
 	return (
-		<div>
-			<h2>Connexion</h2>
+		<div className="login-page">
 			<form onSubmit={handleLogin}>
+				<h2>Connexion</h2>
 				<input
 					type="email"
 					placeholder="Email"

@@ -33,7 +33,8 @@ const Navbar = () => {
 						Accueil
 					</Link>
 				</li>
-				{user ? (
+
+				{user && (
 					<>
 						<li>
 							<Link
@@ -44,10 +45,38 @@ const Navbar = () => {
 							</Link>
 						</li>
 						<li>
+							<Link
+								to="/programs"
+								onClick={() => setMenuOpen(false)}
+							>
+								Programmes
+							</Link>
+						</li>
+						<li>
+							<Link
+								to="/account"
+								onClick={() => setMenuOpen(false)}
+							>
+								Paramètres
+							</Link>
+						</li>
+						{user.role === "coach" && (
+							<li>
+								<Link
+									to="/create-program"
+									onClick={() => setMenuOpen(false)}
+								>
+									Créer un programme
+								</Link>
+							</li>
+						)}
+						<li>
 							<button onClick={handleLogout}>Déconnexion</button>
 						</li>
 					</>
-				) : (
+				)}
+
+				{!user && (
 					<li>
 						<Link to="/login" onClick={() => setMenuOpen(false)}>
 							Connexion
