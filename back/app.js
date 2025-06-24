@@ -1,8 +1,7 @@
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
-import { sequelize } from "./config/db.js";
-
+import { db } from "./models/index.js";
 import authRoutes from "./routes/auth.routes.js";
 
 dotenv.config();
@@ -13,24 +12,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Routes
 app.use("/api/auth", authRoutes);
 
 app.get("/", (req, res) => {
-	res.send("🎯 FitTrack backend est opérationnel !");
+	res.send("🎯 FitTrack backend opérationnel !");
 });
 
-// Connexion DB + démarrage serveur
 const PORT = process.env.PORT || 5000;
 
-sequelize
-	.authenticate()
+db.sequelize
+	.sync({ alter: true })
 	.then(() => {
-		console.log("✅ Connexion à la BDD réussie !");
+		console.log("✅ Base synchronisée !");
 		app.listen(PORT, () =>
-			console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`)
+			console.log(`🚀 Serveur lancé : http://localhost:${PORT}`)
 		);
 	})
 	.catch((err) => {
-		console.error("❌ Erreur de connexion à la BDD :", err);
+		console.error("❌ Erreur de synchronisation :", err);
 	});
