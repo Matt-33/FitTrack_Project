@@ -14,22 +14,19 @@ const sequelize = new Sequelize(
 	}
 );
 
-// Models
 import UserModel from "./User.js";
-// import WorkoutModel from "./Workout.js"; // à venir
-// import ProgramModel from "./Program.js"; // à venir
+import WorkoutModel from "./Workout.js";
 
-// Init models
 const User = UserModel(sequelize);
-// const Workout = WorkoutModel(sequelize);
-// const Program = ProgramModel(sequelize);
+const Workout = WorkoutModel(sequelize);
 
-// Associations (ex: User.hasMany(Workout)) — plus tard
+// 👇 Relations
+User.hasMany(Workout, { foreignKey: "userId" });
+Workout.belongsTo(User, { foreignKey: "userId" });
 
 export const db = {
 	sequelize,
 	Sequelize,
 	User,
-	// Workout,
-	// Program,
+	Workout,
 };

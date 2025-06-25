@@ -8,16 +8,17 @@ export const register = async (req, res) => {
 	const { name, email, password, role } = req.body;
 
 	try {
-		// Vérifie si l'utilisateur existe déjà
+		if (role && role !== "client" && role !== "coach") {
+			return res.status(400).json({ message: "Rôle invalide." });
+		}
+
 		const existingUser = await User.findOne({ where: { email } });
 		if (existingUser) {
 			return res.status(400).json({ message: "Email déjà utilisé." });
 		}
 
-		// Hash du mot de passe
 		const hashedPassword = await bcrypt.hash(password, 10);
 
-		// Création de l'utilisateur
 		const user = await User.create({
 			name,
 			email,
@@ -25,7 +26,6 @@ export const register = async (req, res) => {
 			role: role || "client",
 		});
 
-		// Génération du token
 		const token = jwt.sign(
 			{ id: user.id, email: user.email, role: user.role },
 			process.env.JWT_SECRET,

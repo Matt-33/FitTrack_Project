@@ -3,6 +3,8 @@ import cors from "cors";
 import dotenv from "dotenv";
 import { db } from "./models/index.js";
 import authRoutes from "./routes/auth.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import workoutRoutes from "./routes/workout.routes.js";
 
 dotenv.config();
 
@@ -13,6 +15,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/workouts", workoutRoutes);
 
 app.get("/", (req, res) => {
 	res.send("🎯 FitTrack backend opérationnel !");
