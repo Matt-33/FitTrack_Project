@@ -1,167 +1,259 @@
-@use "../styles/variables.scss";
-@use "../styles/mixins.scss";
-@use "sass:color";
+@use "../styles/variables" as v;
 
-.home {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	text-align: center;
-	min-height: 100vh;
-	background: variables.$background-color;
-	color: variables.$text-color;
-	padding: 1rem;
-}
+.home-page {
+	color: v.$text-color;
+	background: v.$background-color;
 
-// 🏠 Header
-.header {
-	width: 100%;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 1rem;
-	background: variables.$secondary-color;
-	position: fixed;
-	top: 0;
-	left: 0;
-	right: 0;
-	z-index: 1000;
+	/* HERO */
+	.home-hero {
+		background: radial-gradient(
+				1200px 420px at 15% -10%,
+				rgba(59, 130, 246, 0.25),
+				transparent
+			),
+			radial-gradient(
+				900px 380px at 85% -15%,
+				rgba(0, 119, 255, 0.18),
+				transparent
+			),
+			v.$secondary-color;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 
-	.logo {
-		font-size: 1.5rem;
-		font-weight: bold;
-		color: variables.$primary-color;
+		.hero-inner {
+			max-width: 1100px;
+			margin: 0 auto;
+			padding: 3rem 1.25rem 2.25rem;
+
+			h1 {
+				margin: 0 0 0.5rem;
+				font-size: clamp(2rem, 6vw, 3rem);
+				line-height: 1.1;
+			}
+			.sub {
+				margin: 0;
+				opacity: 0.9;
+				font-size: clamp(1rem, 2.7vw, 1.25rem);
+			}
+
+			.cta-row {
+				display: flex;
+				gap: 0.75rem;
+				flex-wrap: wrap;
+				margin-top: 1.5rem;
+			}
+		}
 	}
 
-	.burger-menu {
-		font-size: 2rem;
-		cursor: pointer;
-		color: variables.$text-color;
+	/* METRICS */
+	.metrics {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 1rem 1.25rem 0;
+		display: grid;
+		grid-template-columns: repeat(4, 1fr);
+		gap: 12px;
+
+		.metric {
+			background: #151515;
+			border: 1px solid #2a2a2a;
+			border-radius: 12px;
+			padding: 0.9rem 1rem;
+			text-align: center;
+			.value {
+				font-weight: 800;
+				font-size: 1.25rem;
+			}
+			.label {
+				opacity: 0.85;
+				margin-top: 2px;
+			}
+		}
+
+		@media (max-width: v.$breakpoint-tablet) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		@media (max-width: v.$breakpoint-mobile) {
+			grid-template-columns: 1fr;
+		}
 	}
-}
 
-// 🎯 Hero Section
-.hero {
-	margin-top: 5rem;
-	padding: 2rem 1rem;
-	text-align: center;
+	/* FEATURES */
+	.features {
+		max-width: 1100px;
+		margin: 1.25rem auto 0;
+		padding: 0 1.25rem 1.25rem;
 
-	.title {
-		font-size: 2rem;
-		margin-bottom: 0.5rem;
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+			gap: 16px;
+
+			@media (max-width: v.$breakpoint-desktop) {
+				grid-template-columns: repeat(2, 1fr);
+			}
+			@media (max-width: v.$breakpoint-tablet) {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.card {
+			background: linear-gradient(
+					180deg,
+					rgba(255, 255, 255, 0.02),
+					rgba(255, 255, 255, 0)
+				),
+				#161616;
+			border: 1px solid rgba(255, 255, 255, 0.06);
+			border-radius: 14px;
+			padding: 16px;
+			transition: transform 0.2s ease, box-shadow 0.2s ease,
+				border-color 0.2s ease;
+
+			&:hover {
+				transform: translateY(-2px);
+				box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+				border-color: rgba(255, 255, 255, 0.1);
+			}
+
+			.icon {
+				font-size: 1.4rem;
+				margin-bottom: 0.4rem;
+			}
+			h3 {
+				margin: 0 0 0.3rem;
+			}
+			p {
+				margin: 0;
+				opacity: 0.9;
+			}
+		}
 	}
 
-	.subtitle {
-		font-size: 1.2rem;
-		color: color.adjust(variables.$text-color, $lightness: 20%);
-	}
+	/* HOW IT WORKS */
+	.how {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 1.5rem 1.25rem 0;
 
-	.home-buttons {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: 1rem;
-		margin-top: 2rem;
+		h2 {
+			margin: 0 0 0.75rem;
+			font-size: clamp(1.25rem, 3vw, 1.6rem);
+		}
 
-		.cta {
-			@include mixins.button-style;
-			width: 220px;
+		.steps {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 16px;
 
-			&.secondary {
-				background: transparent;
-				border: 2px solid variables.$primary-color;
-				color: variables.$primary-color;
+			@media (max-width: v.$breakpoint-tablet) {
+				grid-template-columns: 1fr;
+			}
 
-				&:hover {
-					background: variables.$primary-color;
-					color: variables.$secondary-color;
+			.step {
+				background: #151515;
+				border: 1px solid #2a2a2a;
+				border-radius: 14px;
+				padding: 16px;
+
+				.num {
+					width: 32px;
+					height: 32px;
+					display: grid;
+					place-items: center;
+					background: v.$primary-color;
+					color: #fff;
+					border-radius: 8px;
+					font-weight: 800;
+					margin-bottom: 0.5rem;
+				}
+
+				h4 {
+					margin: 0 0 0.25rem;
+				}
+				p {
+					margin: 0;
+					opacity: 0.9;
 				}
 			}
 		}
 	}
-}
 
-// 🏋️‍♂️ Features Section
-.features {
-	margin-top: 3rem;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 1rem;
-	padding: 1rem;
+	/* CTA FINAL */
+	.cta-final {
+		max-width: 1100px;
+		margin: 1.5rem auto 0;
+		padding: 0 1.25rem 2rem;
 
-	.feature {
-		background: variables.$secondary-color;
-		padding: 1rem;
+		.cta-card {
+			position: relative;
+			overflow: hidden;
+			border-radius: 16px;
+			padding: 1.5rem;
+			background: linear-gradient(
+					135deg,
+					rgba(0, 119, 255, 0.25),
+					rgba(0, 119, 255, 0.1)
+				),
+				#0f172a;
+			border: 1px solid rgba(255, 255, 255, 0.08);
+
+			h3 {
+				margin: 0 0 0.25rem;
+				font-size: 1.4rem;
+			}
+			p {
+				margin: 0 0 0.9rem;
+				opacity: 0.95;
+			}
+
+			.cta-actions {
+				display: flex;
+				gap: 0.6rem;
+				flex-wrap: wrap;
+			}
+		}
+	}
+
+	.home-footer {
+		text-align: center;
+		opacity: 0.85;
+		padding: 1.25rem;
+		border-top: 1px solid rgba(255, 255, 255, 0.06);
+		a {
+			color: v.$primary-color;
+			text-decoration: none;
+			font-weight: 600;
+		}
+	}
+
+	/* Buttons */
+	.btn {
+		border: 0;
 		border-radius: 10px;
-		width: 90%;
-		max-width: 400px;
-		font-size: 1.1rem;
-		font-weight: bold;
-	}
-}
-
-// 📌 Footer
-.footer {
-	margin-top: auto;
-	padding: 1rem;
-	text-align: center;
-	font-size: 0.9rem;
-
-	a {
-		color: variables.$primary-color;
-		text-decoration: none;
-		font-weight: bold;
-	}
-}
-
-// 📱 Responsive Design
-@include mixins.respond(tablet) {
-	.hero {
-		.title {
-			font-size: 2.5rem;
+		padding: 0.75rem 1rem;
+		cursor: pointer;
+		font-weight: 700;
+		transition: filter 0.2s ease, transform 0.05s ease,
+			border-color 0.2s ease;
+		&:hover {
+			filter: brightness(1.05);
 		}
-		.subtitle {
-			font-size: 1.5rem;
+		&:active {
+			transform: translateY(1px);
 		}
 	}
-
-	.home-buttons {
-		flex-direction: row;
-		justify-content: center;
-		flex-wrap: wrap;
-
-		.cta {
-			width: auto;
-			padding: 0.75rem 1.5rem;
-		}
+	.btn-primary {
+		background: v.$primary-color;
+		color: #fff;
 	}
-
-	.features {
-		flex-direction: row;
-		flex-wrap: wrap;
-		justify-content: center;
-
-		.feature {
-			width: 45%;
-		}
+	.btn-outline {
+		background: transparent;
+		color: v.$primary-color;
+		border: 1px solid v.$primary-color;
 	}
-}
-
-@include mixins.respond(desktop) {
-	.hero {
-		.title {
-			font-size: 3rem;
-		}
-		.subtitle {
-			font-size: 1.8rem;
-		}
-	}
-
-	.features {
-		.feature {
-			width: 30%;
-		}
+	.btn-ghost {
+		background: transparent;
+		color: #ddd;
+		border: 1px solid #333;
 	}
 }

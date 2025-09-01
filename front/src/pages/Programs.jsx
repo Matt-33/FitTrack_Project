@@ -1,68 +1,215 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useContext, useMemo } from "react";
 import "./Programs.scss";
+import { api } from "../lib/api";
+import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "../components/ToastProvider";
+import Spinner from "../components/Spinner";
 
-// 👉 Simule des données reçues d'une API
-const fakePrograms = [
-	{
-		id: 1,
-		title: "Programme prise de masse débutant",
-		goal: "prise de masse",
-		coach: "Matthias",
-		exercises: [
-			{ name: "Développé couché", reps: "4x10", weight: "60kg" },
-			{ name: "Squat", reps: "4x12", weight: "80kg" },
-		],
-	},
-	{
-		id: 2,
-		title: "Programme sèche intense",
-		goal: "sèche",
-		coach: "Julie",
-		exercises: [
-			{ name: "Burpees", reps: "5x20", duration: "30s repos" },
-			{ name: "Corde à sauter", duration: "3min" },
-		],
-	},
-];
+const LEVEL_LABELS = {
+	debutant: "Débutant",
+	intermediaire: "Intermédiaire",
+	avance: "Avancé",
+};
+
+const GOAL_LABELS = {
+	hypertrophie: "Hypertrophie",
+	force: "Force",
+	endurance: "Endurance",
+	perte_de_poids: "Perte de poids",
+};
+
+const SkeletonCard = () => (
+	<div className="program-card skeleton">
+		<div className="sk-title" />
+		<div className="sk-row" />
+		<div className="sk-row" />
+		<div className="sk-footer" />
+	</div>
+);
 
 const Programs = () => {
 	const [programs, setPrograms] = useState([]);
+	const [loading, setLoading] = useState(true);
+	const [enrolling, setEnrolling] = useState({});
+	const [enrolled, setEnrolled] = useState({});
+	const { token } = useContext(AuthContext);
+	const { toast } = useToast();
+	const navigate = useNavigate();
+
+	// Filtres
+	const [q, setQ] = useState("");
+	const [level, setLevel] = useState("");
+	const [goal, setGoal] = useState("");
+
+	const queryString = useMemo(() => {
+		const params = new URLSearchParams();
+		params.set("page", "1");
+		params.set("limit", "20");
+		if (q) params.set("q", q);
+		if (level) params.set("level", level);
+		if (goal) params.set("goal", goal);
+		return params.toString();
+	}, [q, level, goal]);
+
+	const load = async () => {
+		setLoading(true);
+		try {
+			const { data } = await api.get(`/api/programmes?${queryString}`);
+			setPrograms(data.data || data);
+		} catch {
+			toast.error("Erreur de chargement des programmes");
+		} finally {
+			setLoading(false);
+		}
+	};
 
 	useEffect(() => {
-		// 🛠 À remplacer par un fetch API plus tard
-		setPrograms(fakePrograms);
-	}, []);
+		load();
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [queryString]);
+
+	const enroll = async (programmeId) => {
+		if (!token) return navigate("/login");
+		setEnrolling((p) => ({ ...p, [programmeId]: true }));
+		try {
+			await api.post("/api/enrollments", { programmeId });
+			toast.success("Inscription réussie 🎯");
+			setEnrolled((e) => ({ ...e, [programmeId]: true }));
+		} catch (e) {
+			toast.error(
+				e?.response?.data?.message || "Erreur lors de l'inscription"
+			);
+		} finally {
+			setEnrolling((p) => ({ ...p, [programmeId]: false }));
+		}
+	};
+
+	const resetFilters = () => {
+		setQ("");
+		setLevel("");
+		setGoal("");
+	};
 
 	return (
-		<div className="programs">
-			<h2>Programmes disponibles</h2>
+		<div className="programs-page">
+			{/* Hero */}
+			<section className="hero">
+				<div className="hero__content">
+					<h1>Programmes</h1>
+					<p>
+						Choisis un plan qui correspond à ton niveau et ton
+						objectif.
+					</p>
+				</div>
+			</section>
 
-			{programs.length === 0 ? (
-				<p>Aucun programme pour l’instant.</p>
-			) : (
-				programs.map((program) => (
-					<div key={program.id} className="program-card">
-						<h3>{program.title}</h3>
-						<p>
-							<strong>Objectif :</strong> {program.goal}
-						</p>
-						{program.coach && (
-							<p>
-								<strong>Coach :</strong> {program.coach}
-							</p>
-						)}
+			{/* Filtres */}
+			<section className="filters">
+				<input
+					type="search"
+					placeholder="Rechercher un programme…"
+					value={q}
+					onChange={(e) => setQ(e.target.value)}
+				/>
+				<select
+					value={level}
+					onChange={(e) => setLevel(e.target.value)}
+				>
+					<option value="">Tous les niveaux</option>
+					<option value="debutant">Débutant</option>
+					<option value="intermediaire">Intermédiaire</option>
+					<option value="avance">Avancé</option>
+				</select>
+				<select value={goal} onChange={(e) => setGoal(e.target.value)}>
+					<option value="">Tous les objectifs</option>
+					<option value="hypertrophie">Hypertrophie</option>
+					<option value="force">Force</option>
+					<option value="endurance">Endurance</option>
+					<option value="perte_de_poids">Perte de poids</option>
+				</select>
+				<button className="btn btn-ghost" onClick={resetFilters}>
+					Réinitialiser
+				</button>
+			</section>
 
-						<ul>
-							{program.exercises.map((ex, i) => (
-								<li key={i}>
-									{ex.name} – {ex.reps || ex.duration || ""}{" "}
-									{ex.weight && `– ${ex.weight}`}
-								</li>
-							))}
-						</ul>
+			{/* Liste */}
+			<section className="programs">
+				{loading ? (
+					<div className="grid">
+						{Array.from({ length: 6 }).map((_, i) => (
+							<SkeletonCard key={i} />
+						))}
 					</div>
-				))
-			)}
+				) : programs.length === 0 ? (
+					<div className="empty">
+						Aucun programme trouvé. Essaie d’ajuster tes filtres.
+					</div>
+				) : (
+					<div className="grid">
+						{programs.map((p) => (
+							<article className="program-card" key={p.id}>
+								<div className="card-top">
+									<h3 className="title">{p.title}</h3>
+									<div className="badges">
+										{p.level && (
+											<span
+												className={`badge badge-level ${p.level}`}
+											>
+												{LEVEL_LABELS[p.level] ||
+													p.level}
+											</span>
+										)}
+										{p.goal && (
+											<span className="badge badge-goal">
+												{GOAL_LABELS[p.goal] || p.goal}
+											</span>
+										)}
+									</div>
+								</div>
+
+								{p.description && (
+									<p className="desc">{p.description}</p>
+								)}
+
+								<div className="footer">
+									<div className="coach">
+										<div className="avatar">
+											{(p.coach?.name || "C")
+												.split(" ")
+												.map((s) => s[0])
+												.slice(0, 2)
+												.join("")
+												.toUpperCase()}
+										</div>
+										<span className="coach-name">
+											{p.coach?.name || "Coach"}
+										</span>
+									</div>
+
+									<button
+										className={`btn btn-primary ${
+											enrolled[p.id] ? "btn-success" : ""
+										}`}
+										onClick={() => enroll(p.id)}
+										disabled={
+											!!enrolling[p.id] || enrolled[p.id]
+										}
+									>
+										{enrolling[p.id] ? (
+											<Spinner />
+										) : enrolled[p.id] ? (
+											"Inscrit ✓"
+										) : (
+											"S'inscrire"
+										)}
+									</button>
+								</div>
+							</article>
+						))}
+					</div>
+				)}
+			</section>
 		</div>
 	);
 };

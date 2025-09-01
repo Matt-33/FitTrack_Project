@@ -4,83 +4,76 @@ import { AuthContext } from "../context/AuthContext";
 import { Link, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
-	const { user, dispatch } = useContext(AuthContext);
+	const { user, logout } = useContext(AuthContext);
 	const navigate = useNavigate();
 	const [menuOpen, setMenuOpen] = useState(false);
 
 	const handleLogout = () => {
-		dispatch({ type: "LOGOUT" });
+		logout();
 		navigate("/");
 		setMenuOpen(false);
 	};
 
-	const toggleMenu = () => {
-		setMenuOpen(!menuOpen);
-	};
-
 	return (
 		<nav className="navbar">
-			<h1>FitTrack</h1>
-			<div className="burger-menu" onClick={toggleMenu}>
-				<div className={`bar ${menuOpen ? "open" : ""}`}></div>
-				<div className={`bar ${menuOpen ? "open" : ""}`}></div>
-				<div className={`bar ${menuOpen ? "open" : ""}`}></div>
-			</div>
+			<h1>
+				<Link to="/">FitTrack</Link>
+			</h1>
 
-			<ul className={`nav-links ${menuOpen ? "open" : ""}`}>
+			{/* Burger selon ton SCSS */}
+			<button
+				className="burger-menu"
+				aria-label="Ouvrir le menu"
+				aria-controls="main-nav"
+				aria-expanded={menuOpen}
+				onClick={() => setMenuOpen((s) => !s)}
+			>
+				<span className={`bar ${menuOpen ? "open" : ""}`} />
+				<span className={`bar ${menuOpen ? "open" : ""}`} />
+				<span className={`bar ${menuOpen ? "open" : ""}`} />
+			</button>
+
+			{/* Ajout de .open sur UL comme attendu par ton SCSS */}
+			<ul id="main-nav" className={`nav-links ${menuOpen ? "open" : ""}`}>
 				<li>
 					<Link to="/" onClick={() => setMenuOpen(false)}>
 						Accueil
 					</Link>
 				</li>
-
+				<li>
+					<Link to="/programs" onClick={() => setMenuOpen(false)}>
+						Programmes
+					</Link>
+				</li>
 				{user && (
-					<>
-						<li>
-							<Link
-								to="/dashboard"
-								onClick={() => setMenuOpen(false)}
-							>
-								Dashboard
-							</Link>
-						</li>
-						<li>
-							<Link
-								to="/programs"
-								onClick={() => setMenuOpen(false)}
-							>
-								Programmes
-							</Link>
-						</li>
-						<li>
-							<Link
-								to="/account"
-								onClick={() => setMenuOpen(false)}
-							>
-								Paramètres
-							</Link>
-						</li>
-						{user.role === "coach" && (
-							<li>
-								<Link
-									to="/create-program"
-									onClick={() => setMenuOpen(false)}
-								>
-									Créer un programme
-								</Link>
-							</li>
-						)}
-						<li>
-							<button onClick={handleLogout}>Déconnexion</button>
-						</li>
-					</>
+					<li>
+						<Link
+							to="/dashboard"
+							onClick={() => setMenuOpen(false)}
+						>
+							Tableau de bord
+						</Link>
+					</li>
 				)}
-
-				{!user && (
+				{user?.role === "coach" && (
+					<li>
+						<Link
+							to="/create-program"
+							onClick={() => setMenuOpen(false)}
+						>
+							Créer un programme
+						</Link>
+					</li>
+				)}
+				{!user ? (
 					<li>
 						<Link to="/login" onClick={() => setMenuOpen(false)}>
 							Connexion
 						</Link>
+					</li>
+				) : (
+					<li>
+						<button onClick={handleLogout}>Déconnexion</button>
 					</li>
 				)}
 			</ul>

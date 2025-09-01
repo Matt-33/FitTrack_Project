@@ -6,12 +6,8 @@ import Programs from "../pages/Programs";
 import CreateProgram from "../pages/CreateProgram";
 import AccountSettings from "../pages/AccountSettings";
 import PrivateRoute from "../components/PrivateRoute";
-import { useContext } from "react";
-import { AuthContext } from "../context/AuthContext";
 
 const AppRoutes = () => {
-	const { user } = useContext(AuthContext);
-
 	return (
 		<Routes>
 			<Route path="/" element={<Home />} />
@@ -24,11 +20,12 @@ const AppRoutes = () => {
 					</PrivateRoute>
 				}
 			/>
+			<Route path="/programs" element={<Programs />} />
 			<Route
-				path="/programs"
+				path="/create-program"
 				element={
 					<PrivateRoute>
-						<Programs />
+						<CreateProgram />
 					</PrivateRoute>
 				}
 			/>
@@ -40,16 +37,6 @@ const AppRoutes = () => {
 					</PrivateRoute>
 				}
 			/>
-			{user?.role === "coach" && (
-				<Route
-					path="/create-program"
-					element={
-						<PrivateRoute>
-							<CreateProgram />
-						</PrivateRoute>
-					}
-				/>
-			)}
 		</Routes>
 	);
 };

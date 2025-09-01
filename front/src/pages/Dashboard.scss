@@ -1,111 +1,415 @@
-@use "../styles/variables.scss";
-@use "../styles/mixins.scss";
+@use "../styles/variables" as v;
 
-.dashboard {
-	padding: 2rem;
-	text-align: center;
-	color: variables.$text-color;
+.dashboard-page {
+	color: v.$text-color;
 
-	h2 {
-		color: variables.$primary-color;
+	/* HERO */
+	.dash-hero {
+		background: radial-gradient(
+				1000px 360px at 10% -10%,
+				rgba(59, 130, 246, 0.22),
+				transparent
+			),
+			radial-gradient(
+				900px 320px at 90% -15%,
+				rgba(0, 119, 255, 0.18),
+				transparent
+			),
+			v.$secondary-color;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+
+		.hero-inner {
+			max-width: 1100px;
+			margin: 0 auto;
+			padding: 1.25rem 1.25rem;
+
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 16px;
+			flex-wrap: wrap;
+
+			.user {
+				display: flex;
+				align-items: center;
+				gap: 12px;
+
+				.avatar {
+					width: 48px;
+					height: 48px;
+					border-radius: 50%;
+					display: grid;
+					place-items: center;
+					font-weight: 800;
+					background: linear-gradient(
+						135deg,
+						v.$primary-color,
+						#6aa8ff
+					);
+					color: white;
+				}
+
+				.info h2 {
+					margin: 0;
+					font-size: clamp(1.2rem, 3vw, 1.6rem);
+				}
+				.info p {
+					margin: 2px 0 0;
+					opacity: 0.9;
+				}
+			}
+
+			.actions {
+				display: flex;
+				gap: 0.6rem;
+				flex-wrap: wrap;
+			}
+		}
 	}
 
-	// 📌 Section Ajout libre (peut être cachée si tu veux forcer les programmes)
-	.add-workout {
-		margin: 1rem auto;
-		display: flex;
-		flex-direction: column;
-		gap: 0.5rem;
-		max-width: 300px;
+	/* STATS GRID */
+	.stats-grid {
+		max-width: 1100px;
+		margin: 1rem auto 0;
+		padding: 0 1.25rem;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 14px;
 
-		input,
-		button {
-			padding: 0.5rem;
-			border-radius: 5px;
-			border: none;
-		}
-
-		input {
-			background: variables.$secondary-color;
-			color: white;
-		}
-
-		button {
-			@include mixins.button-style;
+		@media (max-width: v.$breakpoint-tablet) {
+			grid-template-columns: 1fr;
 		}
 	}
 
-	// 📝 Liste des programmes dispo
-	.program-list {
-		margin: 2rem 0;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
-		max-width: 400px;
-		margin-inline: auto;
+	.dash-card {
+		background: linear-gradient(
+				180deg,
+				rgba(255, 255, 255, 0.02),
+				rgba(255, 255, 255, 0)
+			),
+			#161616;
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 14px;
+		padding: 16px;
+		min-height: 110px;
+		transition: transform 0.2s ease, box-shadow 0.2s ease,
+			border-color 0.2s ease;
 
-		button {
-			@include mixins.button-style;
-			width: 100%;
+		&:hover {
+			transform: translateY(-1px);
+			box-shadow: 0 10px 28px rgba(0, 0, 0, 0.3);
+			border-color: rgba(255, 255, 255, 0.1);
+		}
+
+		&.kpi {
+			display: grid;
+			gap: 6px;
+			.kpi-title {
+				opacity: 0.9;
+			}
+			.kpi-value {
+				font-size: 1.6rem;
+				font-weight: 800;
+			}
+			.kpi-sub {
+				opacity: 0.8;
+				font-size: 0.95rem;
+			}
+		}
+
+		&.progress {
+			display: flex;
+			gap: 14px;
+			align-items: center;
+
+			.progress-ring {
+				width: 88px;
+				height: 88px;
+
+				.ring {
+					width: 100%;
+					height: 100%;
+				}
+				.bg {
+					fill: none;
+					stroke: #2a2a2a;
+					stroke-width: 2.5;
+				}
+				.meter {
+					fill: none;
+					stroke: v.$primary-color;
+					stroke-width: 2.5;
+					stroke-linecap: round;
+					transition: stroke-dasharray 0.4s ease;
+				}
+				.label {
+					font-size: 10px;
+					fill: #fff;
+					text-anchor: middle;
+				}
+			}
+
+			.progress-info {
+				.label {
+					font-weight: 700;
+					margin-bottom: 2px;
+				}
+				.desc {
+					opacity: 0.9;
+				}
+			}
 		}
 	}
 
-	// 🧾 Formulaire de saisie d’un programme sélectionné
-	.program-form {
-		background: variables.$secondary-color;
-		padding: 1.5rem;
-		border-radius: 8px;
-		margin-bottom: 2rem;
-		max-width: 500px;
-		margin-inline: auto;
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+	/* MES PROGRAMMES */
+	.my-programs {
+		max-width: 1100px;
+		margin: 1rem auto 0;
+		padding: 0 1.25rem;
+
+		.section-top {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 12px;
+			h3 {
+				margin: 0;
+			}
+		}
+
+		.grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 14px;
+
+			@media (max-width: v.$breakpoint-desktop) {
+				grid-template-columns: repeat(2, 1fr);
+			}
+			@media (max-width: v.$breakpoint-tablet) {
+				grid-template-columns: 1fr;
+			}
+		}
+
+		.program-card {
+			display: grid;
+			gap: 8px;
+
+			.top {
+				display: flex;
+				align-items: start;
+				justify-content: space-between;
+				gap: 10px;
+				.title {
+					margin: 0;
+				}
+				.badge {
+					border-radius: 999px;
+					padding: 0.25rem 0.6rem;
+					font-size: 0.75rem;
+					line-height: 1;
+					border: 1px solid rgba(255, 255, 255, 0.12);
+					background: rgba(255, 255, 255, 0.06);
+					color: #eaeaea;
+					&.debutant {
+						color: #86efac;
+						border-color: rgba(34, 197, 94, 0.45);
+					}
+					&.intermediaire {
+						color: #93c5fd;
+						border-color: rgba(59, 130, 246, 0.45);
+					}
+					&.avance {
+						color: #fca5a5;
+						border-color: rgba(239, 68, 68, 0.45);
+					}
+				}
+			}
+			.desc {
+				margin: 0;
+				opacity: 0.9;
+				display: -webkit-box;
+				-webkit-line-clamp: 3;
+				-webkit-box-orient: vertical;
+				overflow: hidden;
+				min-height: 3.6em;
+			}
+			.bottom {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 12px;
+				.coach {
+					display: inline-flex;
+					align-items: center;
+					gap: 8px;
+					.av {
+						width: 30px;
+						height: 30px;
+						border-radius: 50%;
+						display: grid;
+						place-items: center;
+						font-weight: 800;
+						background: linear-gradient(
+							135deg,
+							v.$primary-color,
+							#6aa8ff
+						);
+						color: #fff;
+					}
+				}
+			}
+		}
+
+		.empty {
+			background: #151515;
+			border: 1px solid #2a2a2a;
+			border-radius: 14px;
+			padding: 1.25rem;
+			text-align: center;
+			opacity: 0.95;
+			.btn {
+				margin-top: 0.75rem;
+			}
+		}
+	}
+
+	/* RÉCENT */
+	.recent {
+		max-width: 1100px;
+		margin: 1rem auto 2rem;
+		padding: 0 1.25rem;
 
 		h3 {
-			color: variables.$primary-color;
-			margin-bottom: 1rem;
+			margin: 0 0 0.5rem;
 		}
 
-		.exercise-input {
-			display: flex;
-			flex-direction: column;
-			gap: 0.5rem;
-			background: #1d1d1d;
-			padding: 1rem;
-			border-radius: 5px;
+		.history {
+			list-style: none;
+			padding: 0;
+			margin: 0;
+			display: grid;
+			gap: 8px;
 
-			strong {
-				color: variables.$text-color;
-			}
-
-			input {
-				padding: 0.5rem;
-				border-radius: 5px;
-				border: none;
-				background: #2a2a2a;
-				color: white;
+			li {
+				background: #151515;
+				border: 1px solid #2a2a2a;
+				border-radius: 12px;
+				padding: 0.8rem 1rem;
+				display: flex;
+				align-items: center;
+				gap: 10px;
+				justify-content: space-between;
+				.when {
+					opacity: 0.8;
+					font-size: 0.9rem;
+				}
+				.txt {
+					opacity: 0.95;
+				}
 			}
 		}
 
-		button {
-			@include mixins.button-style;
-			align-self: flex-start;
+		.empty.small {
+			background: #151515;
+			border: 1px solid #2a2a2a;
+			border-radius: 12px;
+			padding: 0.8rem 1rem;
+			opacity: 0.9;
+		}
+
+		.list-skeleton {
+			display: grid;
+			gap: 8px;
+			.row {
+				height: 44px;
+				border-radius: 12px;
+				background: linear-gradient(
+					90deg,
+					#1b1b1b 0%,
+					#222 50%,
+					#1b1b1b 100%
+				);
+				background-size: 500px 100%;
+				animation: shimmer 1.2s infinite linear;
+			}
 		}
 	}
 
-	// 📊 Historique
-	.workout-history {
-		list-style: none;
-		padding: 0;
-		margin-top: 2rem;
-
-		li {
-			background: variables.$secondary-color;
-			margin: 0.5rem auto;
-			padding: 1rem;
+	/* SKELETON */
+	@keyframes shimmer {
+		0% {
+			background-position: -500px 0;
+		}
+		100% {
+			background-position: 500px 0;
+		}
+	}
+	.dash-card.skeleton {
+		display: grid;
+		gap: 8px;
+		.sk-title,
+		.sk-row {
+			height: 12px;
 			border-radius: 8px;
-			max-width: 400px;
+			background: linear-gradient(
+				90deg,
+				#1b1b1b 0%,
+				#222 50%,
+				#1b1b1b 100%
+			);
+			background-size: 500px 100%;
+			animation: shimmer 1.2s infinite linear;
+		}
+		.sk-title {
+			width: 60%;
+			height: 16px;
+		}
+	}
+
+	/* BUTTONS */
+	.btn {
+		border: 0;
+		border-radius: 10px;
+		padding: 0.7rem 1rem;
+		cursor: pointer;
+		font-weight: 700;
+		transition: filter 0.2s ease, transform 0.05s ease,
+			border-color 0.2s ease;
+		&:hover {
+			filter: brightness(1.05);
+		}
+		&:active {
+			transform: translateY(1px);
+		}
+		&:disabled {
+			opacity: 0.7;
+			cursor: not-allowed;
+		}
+	}
+	.btn-primary {
+		background: v.$primary-color;
+		color: #fff;
+	}
+	.btn-outline {
+		background: transparent;
+		color: v.$primary-color;
+		border: 1px solid v.$primary-color;
+	}
+	.btn-ghost {
+		background: transparent;
+		color: #ddd;
+		border: 1px solid #333;
+	}
+
+	/* NO-USER GATE */
+	.no-user {
+		min-height: 50vh;
+		display: grid;
+		place-items: center;
+		.gate {
+			text-align: center;
+			display: grid;
+			gap: 0.75rem;
 		}
 	}
 }

@@ -2,24 +2,43 @@ import "./Login.scss";
 import { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "../components/ToastProvider";
+import Spinner from "../components/Spinner";
 
 const Login = () => {
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
-	const { dispatch } = useContext(AuthContext);
+	const [loading, setLoading] = useState(false);
+	const { login, register } = useContext(AuthContext);
+	const { toast } = useToast();
 	const navigate = useNavigate();
 
 	const handleLogin = async (e) => {
 		e.preventDefault();
+		setLoading(true);
+		try {
+			await login(email, password);
+			toast.success("Bienvenue 👋");
+			navigate("/dashboard");
+		} catch (e) {
+			toast.error(e?.response?.data?.message || "Erreur de connexion");
+		} finally {
+			setLoading(false);
+		}
+	};
 
-		const fakeUser = { id: 1, name: "Matthias", email, role: "client" };
-		const fakeToken = "123456abcdef";
-
-		dispatch({
-			type: "LOGIN",
-			payload: { user: fakeUser, token: fakeToken },
-		});
-		navigate("/dashboard");
+	const handleRegister = async (e) => {
+		e.preventDefault();
+		setLoading(true);
+		try {
+			await register("Utilisateur", email, password);
+			toast.success("Compte créé ✅");
+			navigate("/dashboard");
+		} catch (e) {
+			toast.error(e?.response?.data?.message || "Erreur à l'inscription");
+		} finally {
+			setLoading(false);
+		}
 	};
 
 	return (
@@ -40,7 +59,17 @@ const Login = () => {
 					onChange={(e) => setPassword(e.target.value)}
 					required
 				/>
-				<button type="submit">Se connecter</button>
+				<button type="submit" disabled={loading}>
+					{loading ? <Spinner /> : "Se connecter"}
+				</button>
+				<button
+					type="button"
+					onClick={handleRegister}
+					disabled={loading}
+					style={{ marginTop: 8 }}
+				>
+					{loading ? <Spinner /> : "S'inscrire (rapide)"}
+				</button>
 			</form>
 		</div>
 	);

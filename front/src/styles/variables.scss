@@ -1,4 +1,3 @@
-// 🎨 Couleurs principales
 $primary-color: #0077ff;
 $secondary-color: #222;
 $background-color: #121212;
@@ -7,3 +6,11 @@ $text-color: #ffffff;
 $breakpoint-mobile: 480px;
 $breakpoint-tablet: 768px;
 $breakpoint-desktop: 1024px;
+
+$bg-surface: #1f1f1f !default;
+$fg-on-surface: #ffffff !default;
+
+$primary: #3b82f6 !default;
+$success: #22c55e !default;
+$error: #ef4444 !default;
+$warning: #f59e0b !default;
