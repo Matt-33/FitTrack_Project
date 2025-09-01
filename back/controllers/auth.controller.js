@@ -1,29 +1,42 @@
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { db } from "../models/index.js";
+import { z } from "zod";
 
 const User = db.User;
 
+const registerSchema = z.object({
+	name: z.string().min(2, "Nom trop court"),
+	email: z.string().email("Email invalide"),
+	password: z.string().min(8, "Mot de passe trop court"),
+});
+
+const loginSchema = z.object({
+	email: z.string().email("Email invalide"),
+	password: z.string().min(1, "Mot de passe requis"),
+});
+
 export const register = async (req, res) => {
-	const { name, email, password, role } = req.body;
+	const parse = registerSchema.safeParse(req.body);
+	if (!parse.success) {
+		return res
+			.status(400)
+			.json({ message: "Payload invalide", issues: parse.error.issues });
+	}
+	const { name, email, password } = parse.data;
 
 	try {
-		if (role && role !== "client" && role !== "coach") {
-			return res.status(400).json({ message: "Rôle invalide." });
-		}
-
 		const existingUser = await User.findOne({ where: { email } });
-		if (existingUser) {
+		if (existingUser)
 			return res.status(400).json({ message: "Email déjà utilisé." });
-		}
 
-		const hashedPassword = await bcrypt.hash(password, 10);
+		const hashedPassword = await bcrypt.hash(password, 12);
 
 		const user = await User.create({
 			name,
 			email,
 			password: hashedPassword,
-			role: role || "client",
+			role: "client",
 		});
 
 		const token = jwt.sign(
@@ -49,22 +62,22 @@ export const register = async (req, res) => {
 };
 
 export const login = async (req, res) => {
-	const { email, password } = req.body;
+	const parse = loginSchema.safeParse(req.body);
+	if (!parse.success) {
+		return res
+			.status(400)
+			.json({ message: "Payload invalide", issues: parse.error.issues });
+	}
+	const { email, password } = parse.data;
 
 	try {
-		// Vérifie si l'utilisateur existe
 		const user = await User.findOne({ where: { email } });
-		if (!user) {
-			return res.status(400).json({ message: "Email incorrect." });
-		}
+		if (!user) return res.status(400).json({ message: "Email incorrect." });
 
-		// Vérifie le mot de passe
 		const isMatch = await bcrypt.compare(password, user.password);
-		if (!isMatch) {
+		if (!isMatch)
 			return res.status(400).json({ message: "Mot de passe incorrect." });
-		}
 
-		// Génère un token
 		const token = jwt.sign(
 			{ id: user.id, email: user.email, role: user.role },
 			process.env.JWT_SECRET,

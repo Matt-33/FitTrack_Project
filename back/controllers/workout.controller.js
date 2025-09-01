@@ -1,19 +1,29 @@
 import { db } from "../models/index.js";
+import { z } from "zod";
+
 const Workout = db.Workout;
 
-export const createWorkout = async (req, res) => {
-	const { title, description, reps } = req.body;
+const createWorkoutSchema = z.object({
+	title: z.string().min(2, "Titre trop court"),
+	description: z.string().optional().nullable(),
+	reps: z.string().min(1, "Reps requis"), // à adapter si tu veux un nombre
+});
 
-	if (!title || !reps) {
-		return res.status(400).json({ message: "Champs requis manquants." });
+export const createWorkout = async (req, res) => {
+	const parse = createWorkoutSchema.safeParse(req.body);
+	if (!parse.success) {
+		return res
+			.status(400)
+			.json({ message: "Payload invalide", issues: parse.error.issues });
 	}
+	const { title, description, reps } = parse.data;
 
 	try {
 		const workout = await Workout.create({
 			title,
 			description,
 			reps,
-			type: "coach", // car seul un coach peut créer ici
+			type: "coach",
 			userId: req.user.id,
 		});
 
@@ -28,17 +38,31 @@ export const createWorkout = async (req, res) => {
 };
 
 export const getCoachWorkouts = async (req, res) => {
+	const page = Math.max(parseInt(req.query.page || "1"), 1);
+	const limit = Math.min(Math.max(parseInt(req.query.limit || "10"), 1), 50);
+	const offset = (page - 1) * limit;
+
 	try {
-		const workouts = await db.Workout.findAll({
+		const { rows, count } = await db.Workout.findAndCountAll({
 			where: { type: "coach" },
 			include: {
 				model: db.User,
 				attributes: ["id", "name", "role"],
 			},
 			order: [["createdAt", "DESC"]],
+			limit,
+			offset,
 		});
 
-		res.json(workouts);
+		res.json({
+			data: rows,
+			pagination: {
+				page,
+				limit,
+				total: count,
+				pages: Math.ceil(count / limit),
+			},
+		});
 	} catch (error) {
 		console.error("❌ Erreur getCoachWorkouts :", error);
 		res.status(500).json({ message: "Erreur serveur." });
