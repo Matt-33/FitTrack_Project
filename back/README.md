@@ -40,54 +40,76 @@ back/
 ### 2. Utilisateurs
 
 -   Get profil (`GET /api/users/me`)
--   Modifier profil (nom, rôle, etc.)
 
-### 3. Entraînements
+### 3. Exercices
 
--   Créer une séance (`POST /api/workouts`)
--   Modifier / Supprimer (`PUT`, `DELETE`)
--   Lister les séances (`GET /api/workouts`)
--   Associer exercices personnalisés à une séance
+-   Lister GET /api/exercices
+-   Créer (coach) POST /api/exercices
 
 ### 4. Programmes
 
--   Créer un programme (`POST /api/programs`) – réservé aux coachs
--   Liste publique des programmes (`GET /api/programs`)
--   Affecter un programme à un utilisateur (`POST /api/users/:id/program`)
+-   Liste publique (filtres q, level, goal) GET /api/programmes
+-   Détail GET /api/programmes/:id
+-   Créer (coach) POST /api/programmes
+-   Mettre à jour (coach propriétaire) PUT /api/programmes/:id
+-   Supprimer (coach propriétaire) DELETE /api/programmes/:id
 
-### 5. Dashboard admin
+### 5. Inscriptions
 
--   Voir tous les utilisateurs
--   Ajouter des modèles de programmes (prise de masse / sèche)
+-   S’inscrire à un programme POST /api/enrollments
+-   Mes inscriptions GET /api/enrollments/mine (prise de masse / sèche)
 
----
+### 6. Historique (journal d’entraînement)
+
+-   Mon historique GET /api/history
+-   Logger une séance / un exercice POST /api/history
+
+### 7. Statistiques
+
+-   Mes stats (totales + hebdo) GET /api/stats/me
 
 ### 📦 Dépendances
 
 ⚙️ Fichier .env à créer
-env
 
-PORT=3307
-DB_HOST=localhost
+-   env
+
+PORT=5000
+DB_HOST=127.0.0.1
+DB_PORT=3307
 DB_USER=root
 DB_PASSWORD=motdepasse
 DB_NAME=fittrack_db
-JWT_SECRET=yourSuperSecretKey
+JWT_SECRET=MaSuperCleUltraSecrete
+COACH_INVITE_CODE=DEV-COACH
+CORS_ORIGINS=http://localhost:5173
 
-🧪 Tests des routes
-Utilise Postman ou Insomnia pour tester les routes :
+-   Installer & lancer
+    cd back
+    npm install
+    npm run dev
+
+## 🧪 Tests rapides (Postman / Insomnia)
 
 Auth : POST /api/auth/register, POST /api/auth/login
 
-Séances : GET /api/workouts (token requis)
+Utilisateur : GET /api/users/me (token)
 
-Programmes : GET /api/programs
+Programmes : GET /api/programmes
 
-🧠 À propos
+Inscriptions : POST /api/enrollments (token)
+
+Historique : POST /api/history (token)
+
+Stats : GET /api/stats/me (token)
+
+## 🧠 À propos
+
 Développé dans le cadre de la formation développeur web.
 Projet full-stack réalisé par Matthias Giraudeau.
 
-📦 Déploiement
-Frontend prévu sur : Netlify
+## 📦 Déploiement
 
-Backend prévu sur : Railway
+Frontend : Netlify
+
+Backend : Railway (ou équivalent)

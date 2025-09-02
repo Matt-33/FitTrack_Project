@@ -74,8 +74,6 @@ WorkoutHistory.belongsTo(Programme, { foreignKey: "programmeId" });
 Exercice.hasMany(WorkoutHistory, { foreignKey: "exerciceId" });
 WorkoutHistory.belongsTo(Exercice, { foreignKey: "exerciceId" });
 
-console.log("Programme associations:", Object.keys(Programme.associations)); // doit contenir ['coach','exercices']
-
 export const db = {
 	sequelize,
 	Sequelize,
