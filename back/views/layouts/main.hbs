@@ -1,0 +1,54 @@
+<html lang="fr">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width,initial-scale=1" />
+		<title>{{title}}</title>
+		<link
+			rel="stylesheet"
+			href="https://unpkg.com/@picocss/pico@2/css/pico.min.css"
+		/>
+		<style>
+			body { padding: 1rem; } header { display:flex; align-items:center;
+			justify-content:space-between; margin-bottom:1rem; } .flash {
+			margin:.5rem 0; } .flash.error { color:#ff6b6b; } .flash.success {
+			color:#2ecc71; } table { width: 100%; }
+		</style>
+	</head>
+	<body>
+		<header>
+			<h3 style="margin:0;">FitTrack – Admin</h3>
+			<nav>
+				<ul>
+					<li><a href="/admin/users">Utilisateurs</a></li>
+					<li>
+						<form method="post" action="/admin/logout">
+							<input
+								type="hidden"
+								name="_csrf"
+								value="{{csrfToken}}"
+							/>
+							<button
+								type="submit"
+								class="secondary"
+							>Déconnexion</button>
+						</form>
+					</li>
+				</ul>
+			</nav>
+		</header>
+
+		{{#if flash.error}}
+			{{#each flash.error}}
+				<div class="flash error">{{this}}</div>
+			{{/each}}
+		{{/if}}
+
+		{{#if flash.success}}
+			{{#each flash.success}}
+				<div class="flash success">{{this}}</div>
+			{{/each}}
+		{{/if}}
+
+		{{{body}}}
+	</body>
+</html>

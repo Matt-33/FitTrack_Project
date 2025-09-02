@@ -1,0 +1,21 @@
+{{!< layouts/main}}
+<main>
+  <h4>Éditer l’utilisateur #{{user.id}}</h4>
+  <form method="post" action="/admin/users/{{user.id}}">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}">
+    <label>Nom
+      <input type="text" name="name" value="{{user.name}}" required>
+    </label>
+    <label>Email
+      <input type="email" name="email" value="{{user.email}}" required>
+    </label>
+    <label>Rôle
+      <select name="role" required>
+        <option value="client" {{#if (eq user.role "client")}}selected{{/if}}>client</option>
+        <option value="coach" {{#if (eq user.role "coach")}}selected{{/if}}>coach</option>
+      </select>
+    </label>
+    <button type="submit">Enregistrer</button>
+    <a href="/admin/users" class="secondary">Annuler</a>
+  </form>
+</main>

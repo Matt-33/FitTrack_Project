@@ -1,0 +1,37 @@
+{{!< layouts/main}}
+<main>
+  <h4>Utilisateurs</h4>
+
+  <form method="get" style="margin:.5rem 0;">
+    <input type="search" name="q" value="{{q}}" placeholder="Rechercher nom/email…">
+    <button type="submit" class="secondary">Rechercher</button>
+  </form>
+
+  <table role="grid">
+    <thead>
+      <tr>
+        <th>#</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each users}}
+        <tr>
+          <td>{{this.id}}</td>
+          <td>{{this.name}}</td>
+          <td>{{this.email}}</td>
+          <td>{{this.role}}</td>
+          <td>
+            <a href="/admin/users/{{this.id}}/edit">Éditer</a>
+            <form method="post" action="/admin/users/{{this.id}}/delete" style="display:inline;">
+              <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+              <button type="submit" class="contrast" onclick="return confirm('Supprimer ?')">Supprimer</button>
+            </form>
+          </td>
+        </tr>
+      {{/each}}
+      {{#unless users.length}}
+        <tr><td colspan="5">Aucun utilisateur.</td></tr>
+      {{/unless}}
+    </tbody>
+  </table>
+</main>
