@@ -31,8 +31,10 @@ const SkeletonCard = () => (
 const Programs = () => {
 	const [programs, setPrograms] = useState([]);
 	const [loading, setLoading] = useState(true);
+
 	const [enrolling, setEnrolling] = useState({});
-	const [enrolled, setEnrolled] = useState({});
+	const [enrolledIds, setEnrolledIds] = useState(() => new Set());
+
 	const { token } = useContext(AuthContext);
 	const { toast } = useToast();
 	const navigate = useNavigate();
@@ -55,9 +57,26 @@ const Programs = () => {
 	const load = async () => {
 		setLoading(true);
 		try {
-			const { data } = await api.get(`/api/programmes?${queryString}`);
-			setPrograms(data.data || data);
-		} catch {
+			const [progsRes, mineRes] = await Promise.all([
+				api.get(`/api/programmes?${queryString}`),
+				token
+					? api.get("/api/enrollments/mine")
+					: Promise.resolve({ data: [] }),
+			]);
+
+			const list = progsRes.data.data || progsRes.data || [];
+			setPrograms(list);
+
+			const mine = mineRes.data || [];
+			const ids = new Set(
+				mine
+					.map((r) =>
+						typeof r?.id === "number" ? r.id : r?.programmeId
+					)
+					.filter(Boolean)
+			);
+			setEnrolledIds(ids);
+		} catch (e) {
 			toast.error("Erreur de chargement des programmes");
 		} finally {
 			setLoading(false);
@@ -67,15 +86,20 @@ const Programs = () => {
 	useEffect(() => {
 		load();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [queryString]);
+	}, [queryString, token]);
 
 	const enroll = async (programmeId) => {
 		if (!token) return navigate("/login");
 		setEnrolling((p) => ({ ...p, [programmeId]: true }));
 		try {
 			await api.post("/api/enrollments", { programmeId });
+			// Marquer comme inscrit dans l'état local
+			setEnrolledIds((prev) => {
+				const next = new Set(prev);
+				next.add(programmeId);
+				return next;
+			});
 			toast.success("Inscription réussie 🎯");
-			setEnrolled((e) => ({ ...e, [programmeId]: true }));
 		} catch (e) {
 			toast.error(
 				e?.response?.data?.message || "Erreur lors de l'inscription"
@@ -147,66 +171,77 @@ const Programs = () => {
 					</div>
 				) : (
 					<div className="grid">
-						{programs.map((p) => (
-							<article className="program-card" key={p.id}>
-								<div className="card-top">
-									<h3 className="title">{p.title}</h3>
-									<div className="badges">
-										{p.level && (
-											<span
-												className={`badge badge-level ${p.level}`}
-											>
-												{LEVEL_LABELS[p.level] ||
-													p.level}
-											</span>
-										)}
-										{p.goal && (
-											<span className="badge badge-goal">
-												{GOAL_LABELS[p.goal] || p.goal}
-											</span>
-										)}
-									</div>
-								</div>
-
-								{p.description && (
-									<p className="desc">{p.description}</p>
-								)}
-
-								<div className="footer">
-									<div className="coach">
-										<div className="avatar">
-											{(p.coach?.name || "C")
-												.split(" ")
-												.map((s) => s[0])
-												.slice(0, 2)
-												.join("")
-												.toUpperCase()}
+						{programs.map((p) => {
+							const isEnrolled = enrolledIds.has(p.id);
+							return (
+								<article className="program-card" key={p.id}>
+									<div className="card-top">
+										<h3 className="title">{p.title}</h3>
+										<div className="badges">
+											{p.level && (
+												<span
+													className={`badge badge-level ${p.level}`}
+												>
+													{LEVEL_LABELS[p.level] ||
+														p.level}
+												</span>
+											)}
+											{p.goal && (
+												<span className="badge badge-goal">
+													{GOAL_LABELS[p.goal] ||
+														p.goal}
+												</span>
+											)}
 										</div>
-										<span className="coach-name">
-											{p.coach?.name || "Coach"}
-										</span>
 									</div>
 
-									<button
-										className={`btn btn-primary ${
-											enrolled[p.id] ? "btn-success" : ""
-										}`}
-										onClick={() => enroll(p.id)}
-										disabled={
-											!!enrolling[p.id] || enrolled[p.id]
-										}
-									>
-										{enrolling[p.id] ? (
-											<Spinner />
-										) : enrolled[p.id] ? (
-											"Inscrit ✓"
-										) : (
-											"S'inscrire"
-										)}
-									</button>
-								</div>
-							</article>
-						))}
+									{p.description && (
+										<p className="desc">{p.description}</p>
+									)}
+
+									<div className="footer">
+										<div className="coach">
+											<div className="avatar">
+												{(p.coach?.name || "C")
+													.split(" ")
+													.map((s) => s[0])
+													.slice(0, 2)
+													.join("")
+													.toUpperCase()}
+											</div>
+											<span className="coach-name">
+												{p.coach?.name || "Coach"}
+											</span>
+										</div>
+
+										<button
+											className={`btn btn-primary ${
+												isEnrolled ? "btn-success" : ""
+											}`}
+											onClick={() =>
+												isEnrolled
+													? navigate("/dashboard")
+													: enroll(p.id)
+											}
+											disabled={!!enrolling[p.id]}
+											title={
+												isEnrolled
+													? "Déjà inscrit"
+													: "S'inscrire"
+											}
+										>
+											{enrolling[p.id] ? (
+												<Spinner />
+											) : isEnrolled ? (
+												"Inscrit ✓"
+											) : (
+												"S'inscrire"
+											)}
+										</button>
+									</div>
+								</article>
+							);
+						})}
 					</div>
 				)}
 			</section>
