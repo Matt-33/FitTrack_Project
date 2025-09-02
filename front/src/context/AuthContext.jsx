@@ -1,62 +1,78 @@
-import { createContext, useReducer } from "react";
+import { createContext, useState, useEffect, useCallback } from "react";
 import { api } from "../lib/api";
 
-const initialState = {
-	user: JSON.parse(localStorage.getItem("user")) || null,
-	token: localStorage.getItem("token") || null,
-};
-
-const authReducer = (state, action) => {
-	switch (action.type) {
-		case "LOGIN_SUCCESS": {
-			const { user, token } = action.payload;
-			localStorage.setItem("user", JSON.stringify(user));
-			localStorage.setItem("token", token);
-			return { ...state, user, token };
-		}
-		case "LOGOUT": {
-			localStorage.removeItem("user");
-			localStorage.removeItem("token");
-			return { ...state, user: null, token: null };
-		}
-		default:
-			return state;
-	}
-};
-
-export const AuthContext = createContext();
+export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-	const [state, dispatch] = useReducer(authReducer, initialState);
+	// état initial depuis localStorage
+	const [user, setUser] = useState(() => {
+		try {
+			const raw = localStorage.getItem("ft_user");
+			return raw ? JSON.parse(raw) : null;
+		} catch {
+			return null;
+		}
+	});
+	const [token, setToken] = useState(() => localStorage.getItem("ft_token"));
 
-	// API helpers
-	const login = async (email, password) => {
-		const { data } = await api.post("/api/auth/login", { email, password });
-		dispatch({
-			type: "LOGIN_SUCCESS",
-			payload: { user: data.user, token: data.token },
-		});
-		return data.user;
-	};
+	// garder l’en-tête Authorization d’axios synchronisé
+	useEffect(() => {
+		if (token) {
+			api.defaults.headers.common.Authorization = `Bearer ${token}`;
+			localStorage.setItem("ft_token", token);
+		} else {
+			delete api.defaults.headers.common.Authorization;
+			localStorage.removeItem("ft_token");
+		}
+	}, [token]);
 
-	const register = async (name, email, password) => {
-		const { data } = await api.post("/api/auth/register", {
-			name,
-			email,
-			password,
-		});
-		dispatch({
-			type: "LOGIN_SUCCESS",
-			payload: { user: data.user, token: data.token },
-		});
-		return data.user;
-	};
+	// helpers
+	const replaceUser = useCallback((u) => {
+		setUser(u);
+		if (u) localStorage.setItem("ft_user", JSON.stringify(u));
+		else localStorage.removeItem("ft_user");
+	}, []);
 
-	const logout = () => dispatch({ type: "LOGOUT" });
+	const saveAuth = useCallback(
+		(u, t) => {
+			replaceUser(u);
+			setToken(t);
+		},
+		[replaceUser]
+	);
+
+	// actions
+	const login = useCallback(
+		async (email, password) => {
+			const { data } = await api.post("/api/auth/login", {
+				email,
+				password,
+			});
+			saveAuth(data.user, data.token);
+		},
+		[saveAuth]
+	);
+
+	const register = useCallback(
+		async (name, email, password) => {
+			const { data } = await api.post("/api/auth/register", {
+				name,
+				email,
+				password,
+			});
+			saveAuth(data.user, data.token);
+		},
+		[saveAuth]
+	);
+
+	const logout = useCallback(() => {
+		replaceUser(null);
+		setToken(null);
+	}, [replaceUser]);
 
 	return (
 		<AuthContext.Provider
-			value={{ ...state, dispatch, login, register, logout }}
+			value={{ user, token, login, register, logout, replaceUser }}
 		>
 			{children}
 		</AuthContext.Provider>

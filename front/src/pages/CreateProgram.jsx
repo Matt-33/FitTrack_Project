@@ -17,10 +17,11 @@ const CreateProgram = () => {
 	const [description, setDescription] = useState("");
 	const [isPublished, setIsPublished] = useState(true);
 
-	const [exercises, setExercises] = useState([]);
-	const [loadingExercises, setLoadingExercises] = useState(true);
-	// 👉 aucune ligne par défaut
-	const [rows, setRows] = useState([]);
+	const [exercices, setExercices] = useState([]);
+	const [loadingExercices, setLoadingExercices] = useState(true);
+
+	// Chaque ligne peut être en "mode création"
+	const [rows, setRows] = useState([]); // {exerciceId, orderIndex, reps, restSec, createMode?, newName?, creating?}
 
 	const [err, setErr] = useState("");
 	const [submitting, setSubmitting] = useState(false);
@@ -29,13 +30,13 @@ const CreateProgram = () => {
 		(async () => {
 			try {
 				const { data } = await api.get(
-					"/api/exercises?page=1&limit=100"
+					"/api/exercices?page=1&limit=100"
 				);
-				setExercises(data.data || data);
+				setExercices(data.data || data || []);
 			} catch {
-				// pas bloquant : la création du programme ne dépend pas des exercices
+				// non bloquant : on peut créer des exercices inline
 			} finally {
-				setLoadingExercises(false);
+				setLoadingExercices(false);
 			}
 		})();
 	}, []);
@@ -53,9 +54,12 @@ const CreateProgram = () => {
 			...r,
 			{
 				exerciceId: null,
-				orderIndex: r.length + 1,
+				orderIndex: (r?.length || 0) + 1,
 				reps: "",
 				restSec: 90,
+				createMode: exercices.length === 0, // si aucune donnée, on ouvre direct la création
+				newName: "",
+				creating: false,
 			},
 		]);
 
@@ -66,6 +70,57 @@ const CreateProgram = () => {
 	};
 
 	const removeRow = (i) => setRows((r) => r.filter((_, idx) => idx !== i));
+
+	const toggleCreateMode = (i, on = undefined) => {
+		setRows((r) =>
+			r.map((row, idx) =>
+				idx === i
+					? {
+							...row,
+							createMode: on ?? !row.createMode,
+							newName: on ? row.newName : "",
+					  }
+					: row
+			)
+		);
+	};
+
+	const createExerciceInline = async (i) => {
+		const row = rows[i];
+		const name = (row.newName || "").trim();
+		if (name.length < 2) {
+			toast.error("Nom d’exercice trop court (min. 2 caractères).");
+			return;
+		}
+		updateRow(i, "creating", true);
+		try {
+			// backend minimal : { name } suffit (adapter si ton modèle requiert d’autres champs)
+			const { data } = await api.post("/api/exercices", { name });
+			const created = data?.exercice || data; // selon ta réponse
+			if (!created?.id) throw new Error("Création échouée");
+			// Ajoute à la liste et sélectionne
+			setExercices((list) => [...list, created]);
+			setRows((r) =>
+				r.map((row, idx) =>
+					idx === i
+						? {
+								...row,
+								exerciceId: created.id,
+								createMode: false,
+								creating: false,
+								newName: "",
+						  }
+						: row
+				)
+			);
+			toast.success(`Exercice « ${created.name} » créé ✅`);
+		} catch (e) {
+			updateRow(i, "creating", false);
+			toast.error(
+				e?.response?.data?.message || "Impossible de créer l’exercice"
+			);
+		}
+	};
 
 	const submit = async (e) => {
 		e.preventDefault();
@@ -78,8 +133,7 @@ const CreateProgram = () => {
 				goal,
 				description,
 				isPublished,
-				// 👉 si tu n’ajoutes pas d’exercices, on envoie un tableau vide
-				exercises: rows
+				exercices: rows
 					.filter((r) => r.exerciceId)
 					.map(({ exerciceId, orderIndex, reps, restSec }) => ({
 						exerciceId,
@@ -167,98 +221,158 @@ const CreateProgram = () => {
 					Publier
 				</label>
 
-				{/* 👉 Section exercices épurée, sans header ni titre */}
-				{(rows.length > 0 || !loadingExercises) && (
-					<div className="exercises-block">
-						{rows.length > 0 && (
-							<div className="exercise-list">
-								{rows.map((row, i) => (
-									<div key={i} className="exercise-row">
-										<select
-											value={row.exerciceId || ""}
-											onChange={(e) =>
-												updateRow(
-													i,
-													"exerciceId",
-													Number(e.target.value)
-												)
-											}
-										>
-											<option value="" disabled>
-												— Sélectionner un exercice —
-											</option>
-											{exercises.map((ex) => (
-												<option
-													key={ex.id}
-													value={ex.id}
-												>
-													{ex.name}
-												</option>
-											))}
-										</select>
-
-										<input
-											type="number"
-											min="1"
-											value={row.orderIndex}
-											onChange={(e) =>
-												updateRow(
-													i,
-													"orderIndex",
-													e.target.value
-												)
-											}
-											placeholder="Ordre"
-										/>
-										<input
-											value={row.reps}
-											onChange={(e) =>
-												updateRow(
-													i,
-													"reps",
-													e.target.value
-												)
-											}
-											placeholder="Reps ex: 4x10"
-										/>
-										<input
-											type="number"
-											min="0"
-											value={row.restSec}
-											onChange={(e) =>
-												updateRow(
-													i,
-													"restSec",
-													e.target.value
-												)
-											}
-											placeholder="Repos (s)"
-										/>
-
-										<button
-											type="button"
-											className="btn btn-ghost"
-											onClick={() => removeRow(i)}
-										>
-											Suppr
-										</button>
-									</div>
-								))}
-							</div>
-						)}
-
-						{/* Bouton discret en bas uniquement */}
-						<div className="add-row">
-							<button
-								type="button"
-								className="btn btn-link"
-								onClick={addRow}
-							>
-								+ Ajouter un exercice
-							</button>
+				{/* EXERCICES */}
+				<div className="exercises-block">
+					{rows.length === 0 && (
+						<div className="empty-ex">
+							{loadingExercices ? (
+								<span>Chargement des exercices…</span>
+							) : exercices.length === 0 ? (
+								<span>
+									Aucun exercice existant. Crée-en un 👇
+								</span>
+							) : (
+								<span>Ajoute ta première ligne 👇</span>
+							)}
 						</div>
+					)}
+
+					{rows.length > 0 && (
+						<div className="exercise-list">
+							{rows.map((row, i) => (
+								<div key={i} className="exercise-row">
+									{!row.createMode ? (
+										<>
+											<select
+												value={row.exerciceId || ""}
+												onChange={(e) =>
+													updateRow(
+														i,
+														"exerciceId",
+														Number(e.target.value)
+													)
+												}
+											>
+												<option value="" disabled>
+													— Sélectionner un exercice —
+												</option>
+												{exercices.map((ex) => (
+													<option
+														key={ex.id}
+														value={ex.id}
+													>
+														{ex.name}
+													</option>
+												))}
+											</select>
+
+											<button
+												type="button"
+												className="btn btn-ghost small"
+												onClick={() =>
+													toggleCreateMode(i, true)
+												}
+												title="Créer un nouvel exercice"
+											>
+												Nouveau
+											</button>
+										</>
+									) : (
+										<div className="new-ex">
+											<input
+												placeholder="Nom du nouvel exercice"
+												value={row.newName}
+												onChange={(e) =>
+													updateRow(
+														i,
+														"newName",
+														e.target.value
+													)
+												}
+											/>
+											<button
+												type="button"
+												className="btn btn-outline small"
+												onClick={() =>
+													createExerciceInline(i)
+												}
+												disabled={row.creating}
+											>
+												{row.creating ? (
+													<Spinner />
+												) : (
+													"Créer & sélectionner"
+												)}
+											</button>
+											<button
+												type="button"
+												className="btn btn-ghost small"
+												onClick={() =>
+													toggleCreateMode(i, false)
+												}
+												disabled={row.creating}
+											>
+												Annuler
+											</button>
+										</div>
+									)}
+
+									<input
+										type="number"
+										min="1"
+										value={row.orderIndex}
+										onChange={(e) =>
+											updateRow(
+												i,
+												"orderIndex",
+												e.target.value
+											)
+										}
+										placeholder="Ordre"
+									/>
+									<input
+										value={row.reps}
+										onChange={(e) =>
+											updateRow(i, "reps", e.target.value)
+										}
+										placeholder="Reps ex: 4x10"
+									/>
+									<input
+										type="number"
+										min="0"
+										value={row.restSec}
+										onChange={(e) =>
+											updateRow(
+												i,
+												"restSec",
+												e.target.value
+											)
+										}
+										placeholder="Repos (s)"
+									/>
+
+									<button
+										type="button"
+										className="btn btn-ghost"
+										onClick={() => removeRow(i)}
+									>
+										Suppr
+									</button>
+								</div>
+							))}
+						</div>
+					)}
+
+					<div className="add-row">
+						<button
+							type="button"
+							className="btn btn-link"
+							onClick={addRow}
+						>
+							+ Ajouter un exercice
+						</button>
 					</div>
-				)}
+				</div>
 
 				<div className="actions">
 					<button

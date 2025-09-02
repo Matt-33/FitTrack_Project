@@ -1,75 +1,132 @@
-@use "../styles/variables.scss";
-@use "../styles/mixins.scss" as *;
+@use "../styles/variables" as v;
+@use "../styles/mixins" as *;
 
 .navbar {
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	padding: 1rem 2rem;
-	background: variables.$secondary-color;
-	color: variables.$text-color;
-	position: relative;
+	position: sticky;
+	top: 0;
+	z-index: 900;
+	color: v.$text-color;
+	background: linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.02),
+			rgba(255, 255, 255, 0)
+		),
+		v.$secondary-color;
+	border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+	backdrop-filter: saturate(140%) blur(6px);
 
-	h1 {
-		font-size: 1.8rem;
+	.nav-inner {
+		max-width: 1100px;
+		margin: 0 auto;
+		padding: 0.75rem 1.25rem;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: 12px;
+	}
+
+	.brand {
+		margin: 0;
+		font-size: 1.25rem;
+		a {
+			text-decoration: none;
+			color: v.$text-color;
+			background: linear-gradient(135deg, v.$primary-color, #6aa8ff);
+			-webkit-background-clip: text;
+			background-clip: text;
+			color: transparent;
+			font-weight: 800;
+			letter-spacing: 0.2px;
+		}
 	}
 
 	.nav-links {
 		list-style: none;
 		display: flex;
-		gap: 1.5rem;
+		gap: 1rem;
+		align-items: center;
+		margin: 0;
 
-		li a {
-			color: variables.$text-color;
+		li {
+			display: flex;
+			align-items: center;
+		}
+
+		a,
+		button {
+			appearance: none;
+			background: transparent;
+			border: 0;
+			color: v.$text-color;
 			text-decoration: none;
-			font-weight: bold;
-			transition: color 0.3s ease-in-out;
+			font-weight: 600;
+			padding: 0.45rem 0.6rem;
+			border-radius: 8px;
+			transition: background-color 0.2s ease, color 0.2s ease;
 
 			&:hover {
-				color: variables.$primary-color;
+				background: rgba(255, 255, 255, 0.06);
 			}
 		}
 
-		li button {
-			background: none;
-			border: none;
-			color: variables.$text-color;
-			font-weight: bold;
-			cursor: pointer;
-			transition: color 0.3s ease-in-out;
+		a.active {
+			color: #fff;
+			background: rgba(255, 255, 255, 0.1);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+		}
 
-			&:hover {
-				color: variables.$primary-color;
+		.nav-cta {
+			margin-left: 0.25rem;
+			.btn.small {
+				padding: 0.45rem 0.7rem;
+				font-weight: 700;
 			}
 		}
 	}
 
-	// 🎭 Menu burger
+	.btn {
+		border-radius: 10px;
+		cursor: pointer;
+		&.btn-primary {
+			background: v.$primary-color;
+			color: #fff;
+			border: 1px solid transparent;
+		}
+		&.btn-ghost {
+			background: transparent;
+			color: #ddd;
+			border: 1px solid #333;
+		}
+	}
+
 	.burger-menu {
 		display: none;
 		flex-direction: column;
 		gap: 5px;
 		cursor: pointer;
+		padding: 0.25rem;
+		border: 0;
+		background: transparent;
 
 		.bar {
-			width: 30px;
-			height: 4px;
-			background: variables.$text-color;
-			transition: all 0.3s ease-in-out;
+			width: 26px;
+			height: 3px;
+			background: v.$text-color;
+			border-radius: 2px;
+			transition: transform 0.25s ease, opacity 0.25s ease,
+				background 0.2s ease;
 		}
 
 		&:hover .bar {
-			background: variables.$primary-color;
+			background: v.$primary-color;
 		}
 
 		.bar.open:nth-child(1) {
 			transform: translateY(8px) rotate(45deg);
 		}
-
 		.bar.open:nth-child(2) {
 			opacity: 0;
 		}
-
 		.bar.open:nth-child(3) {
 			transform: translateY(-8px) rotate(-45deg);
 		}
@@ -82,31 +139,49 @@
 
 		.nav-links {
 			position: absolute;
-			top: 100%;
 			left: 0;
-			width: 100%;
-			background: variables.$secondary-color;
-			flex-direction: column;
-			align-items: center;
-			padding: 1rem 0;
-			gap: 1rem;
+			right: 0;
+			top: 100%;
+			background: linear-gradient(
+					180deg,
+					rgba(255, 255, 255, 0.02),
+					rgba(255, 255, 255, 0)
+				),
+				v.$secondary-color;
+			border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+			display: grid;
+			gap: 0.25rem;
+			padding: 0.75rem;
 			transform: translateY(-200%);
-			transition: transform 0.3s ease-in-out;
+			transition: transform 0.25s ease;
+			z-index: 901;
 
 			&.open {
 				transform: translateY(0);
 			}
 
 			li {
-				width: 100%;
-				text-align: center;
-
 				a,
 				button {
 					display: block;
 					width: 100%;
-					padding: 10px 0;
+					text-align: left;
+					padding: 0.8rem 1rem;
+					border-radius: 10px;
 				}
+			}
+		}
+
+		.nav-backdrop {
+			position: fixed;
+			inset: 0;
+			background: rgba(0, 0, 0, 0.35);
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity 0.25s ease;
+			&.show {
+				opacity: 1;
+				pointer-events: auto;
 			}
 		}
 	}

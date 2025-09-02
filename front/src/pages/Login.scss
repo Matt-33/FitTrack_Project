@@ -1,50 +1,238 @@
-@use "../styles/variables.scss";
-@use "../styles/mixins.scss";
+@use "../styles/variables" as v;
 
 .login-page {
 	min-height: 100vh;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	background: variables.$background-color;
-	color: variables.$text-color;
-	padding: 2rem;
+	display: grid;
+	place-items: center;
+	padding: 1.5rem;
+	color: v.$text-color;
+	background: radial-gradient(
+			1200px 420px at 15% -10%,
+			rgba(59, 130, 246, 0.22),
+			transparent
+		),
+		radial-gradient(
+			900px 360px at 85% -15%,
+			rgba(0, 119, 255, 0.18),
+			transparent
+		),
+		v.$background-color;
+}
 
-	form {
-		background: variables.$secondary-color;
-		padding: 2rem;
+.auth-card {
+	width: 100%;
+	max-width: 520px;
+	border-radius: 14px;
+	padding: 1rem;
+	background: linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.02),
+			rgba(255, 255, 255, 0)
+		),
+		#161616;
+	border: 1px solid rgba(255, 255, 255, 0.06);
+	box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+}
+
+.pw-meter {
+	display: grid;
+	gap: 0.35rem;
+	margin-top: 0.35rem;
+
+	.track {
+		position: relative;
+		height: 10px;
+		background: #222;
+		border: 1px solid #2a2a2a;
+		border-radius: 999px;
+		overflow: hidden;
+	}
+	.fill {
+		position: absolute;
+		inset: 0 auto 0 0;
+		width: calc((var(--pw) / 4) * 100%);
+		background: v.$primary-color; /* couleur par défaut (sera écrasée par sX) */
+		box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+		transition: width 0.25s ease, background-color 0.2s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.pw-label {
+		opacity: 0.9;
+		font-size: 0.95rem;
+	}
+
+	/* Couleurs par niveau */
+	&.s0 .fill {
+		background: v.$error;
+	}
+	&.s1 .fill {
+		background: v.$warning;
+	}
+	&.s2 .fill {
+		background: v.$primary;
+	}
+	&.s3 .fill {
+		background: v.$success;
+	}
+	&.s4 .fill {
+		background: v.$success;
+		box-shadow: 0 0 16px rgba(34, 197, 94, 0.35);
+	}
+}
+
+/* Conseils */
+.pw-tips {
+	margin: 0.2rem 0 0;
+	padding-left: 1rem;
+	opacity: 0.9;
+	li {
+		margin: 0.1rem 0;
+	}
+}
+
+/* Onglets */
+.tabs {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 0.5rem;
+	padding: 0.25rem;
+	background: #101010;
+	border: 1px solid #242424;
+	border-radius: 12px;
+	margin-bottom: 1rem;
+
+	.tab {
+		border: 0;
 		border-radius: 10px;
-		box-shadow: 0 0 20px rgba(0, 255, 136, 0.1);
-		display: flex;
-		flex-direction: column;
-		gap: 1rem;
+		padding: 0.7rem 0.9rem;
+		background: transparent;
+		color: #ddd;
+		font-weight: 700;
+		cursor: pointer;
+		transition: background 0.2s ease, color 0.2s ease;
+
+		&.active {
+			color: #fff;
+			background: rgba(255, 255, 255, 0.08);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+		}
+	}
+}
+
+/* Form */
+.form {
+	display: grid;
+	gap: 0.9rem;
+	padding: 0.25rem 0.25rem 0;
+
+	.row {
+		display: grid;
+		gap: 0.4rem;
+	}
+
+	label {
+		font-weight: 700;
+	}
+
+	input {
 		width: 100%;
-		max-width: 400px;
-
-		h2 {
-			text-align: center;
-			color: variables.$primary-color;
-			margin-bottom: 1rem;
-		}
-
-		input {
-			padding: 0.8rem;
-			border-radius: 5px;
-			border: none;
-			background: #1e1e1e;
-			color: variables.$text-color;
-		}
-
-		button {
-			@include mixins.button-style;
-			width: 100%;
+		padding: 0.8rem 0.9rem;
+		border-radius: 10px;
+		border: 1px solid #2a2a2a;
+		background: #151515;
+		color: v.$text-color;
+		outline: none;
+		&:focus {
+			border-color: v.$primary-color;
 		}
 	}
 
-	@include mixins.respond(mobile) {
-		padding: 1rem;
-		form {
-			padding: 1.5rem;
+	.password-field {
+		position: relative;
+		display: grid;
+		align-items: center;
+
+		input {
+			padding-right: 2.5rem;
 		}
+
+		.reveal {
+			position: absolute;
+			right: 0.4rem;
+			top: 50%;
+			transform: translateY(-50%);
+			border: 0;
+			background: transparent;
+			color: #ccc;
+			width: 34px;
+			height: 34px;
+			border-radius: 8px;
+			cursor: pointer;
+			display: grid;
+			place-items: center;
+			font-size: 1rem;
+			transition: background 0.2s ease, color 0.2s ease;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.06);
+				color: #fff;
+			}
+		}
+	}
+
+	.hint {
+		margin: 0;
+		font-size: 0.9rem;
+		opacity: 0.85;
+	}
+
+	.actions {
+		display: flex;
+		gap: 0.6rem;
+		flex-wrap: wrap;
+		justify-content: flex-end;
+		margin-top: 0.25rem;
+	}
+}
+
+/* Buttons */
+.btn {
+	border: 0;
+	border-radius: 10px;
+	padding: 0.75rem 1rem;
+	cursor: pointer;
+	font-weight: 700;
+	transition: filter 0.2s ease, transform 0.05s ease, border-color 0.2s ease;
+
+	&:hover {
+		filter: brightness(1.05);
+	}
+	&:active {
+		transform: translateY(1px);
+	}
+	&:disabled {
+		opacity: 0.7;
+		cursor: not-allowed;
+	}
+}
+.btn-primary {
+	background: v.$primary-color;
+	color: #fff;
+	border: 1px solid transparent;
+}
+.btn-ghost {
+	background: transparent;
+	color: #ddd;
+	border: 1px solid #333;
+}
+
+/* Responsive */
+@media (max-width: v.$breakpoint-mobile) {
+	.auth-card {
+		padding: 0.85rem;
+	}
+	.tabs {
+		gap: 0.35rem;
 	}
 }

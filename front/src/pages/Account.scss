@@ -1,0 +1,119 @@
+@use "../styles/variables" as v;
+
+.account-page {
+	max-width: 1100px;
+	margin: 1rem auto 2rem;
+	padding: 0 1.25rem;
+	color: v.$text-color;
+
+	h2 {
+		margin: 0.5rem 0 1rem;
+	}
+
+	.grid {
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		gap: 14px;
+
+		@media (max-width: v.$breakpoint-desktop) {
+			grid-template-columns: repeat(2, 1fr);
+		}
+		@media (max-width: v.$breakpoint-tablet) {
+			grid-template-columns: 1fr;
+		}
+	}
+
+	.card {
+		background: linear-gradient(
+				180deg,
+				rgba(255, 255, 255, 0.02),
+				rgba(255, 255, 255, 0)
+			),
+			#161616;
+		border: 1px solid rgba(255, 255, 255, 0.06);
+		border-radius: 14px;
+		padding: 16px;
+		display: grid;
+		gap: 10px;
+
+		h3 {
+			margin: 0 0 0.25rem;
+		}
+
+		.row {
+			display: grid;
+			gap: 0.4rem;
+		}
+
+		input,
+		textarea {
+			padding: 0.75rem 0.85rem;
+			border: 1px solid #2a2a2a;
+			background: #151515;
+			color: v.$text-color;
+			border-radius: 10px;
+			outline: none;
+			&:focus {
+				border-color: v.$primary-color;
+			}
+		}
+
+		.hint {
+			opacity: 0.9;
+			margin: 0;
+		}
+		.ok {
+			background: #14361f;
+			border: 1px solid #1f6d38;
+			color: #d1fade;
+			border-radius: 10px;
+			padding: 0.6rem 0.8rem;
+		}
+
+		.actions {
+			display: flex;
+			gap: 0.5rem;
+			justify-content: flex-end;
+		}
+	}
+
+	.btn {
+		border-radius: 10px;
+		cursor: pointer;
+		font-weight: 700;
+		padding: 0.7rem 1rem;
+		transition: filter 0.2s ease, transform 0.05s ease;
+		&:hover {
+			filter: brightness(1.05);
+		}
+		&:active {
+			transform: translateY(1px);
+		}
+		&:disabled {
+			opacity: 0.7;
+			cursor: not-allowed;
+		}
+	}
+	.btn-primary {
+		background: v.$primary-color;
+		color: #fff;
+		border: 1px solid transparent;
+	}
+	.btn-outline {
+		background: transparent;
+		color: v.$primary-color;
+		border: 1px solid v.$primary-color;
+	}
+	.btn-ghost {
+		background: transparent;
+		color: #ddd;
+		border: 1px solid #333;
+	}
+
+	.gate {
+		text-align: center;
+		min-height: 40vh;
+		display: grid;
+		place-items: center;
+	}
+}
