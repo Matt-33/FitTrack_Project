@@ -84,6 +84,13 @@ JWT_SECRET=MaSuperCleUltraSecrete
 COACH_INVITE_CODE=DEV-COACH
 CORS_ORIGINS=http://localhost:5173
 
+SESSION_SECRET=uneGrosseChaineAleatoire
+ADMIN_EMAIL=admin@fittrack.local
+ADMIN_PASSWORD=admin123
+ADMIN_NAME=Admin
+
+DB_SYNC=safe
+
 -   Installer & lancer
     cd back
     npm install
