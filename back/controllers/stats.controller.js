@@ -1,39 +1,62 @@
 import { db } from "../models/index.js";
-import { Op, fn, col, literal } from "sequelize";
+import { Op } from "sequelize";
+
+function getWeekBounds() {
+	const now = new Date();
+	const day = (now.getDay() + 6) % 7;
+	const start = new Date(now);
+	start.setHours(0, 0, 0, 0);
+	start.setDate(start.getDate() - day);
+	const end = new Date(start);
+	end.setDate(end.getDate() + 7);
+	return { start, end };
+}
 
 export const myStats = async (req, res) => {
 	try {
 		const userId = req.user.id;
+		const { start, end } = getWeekBounds();
 
-		const [totals, last7] = await Promise.all([
-			db.WorkoutHistory.findAll({
-				where: { userId },
-				attributes: [
-					[fn("COUNT", col("id")), "sessions"],
-					[fn("SUM", col("durationMin")), "durationMin"],
-				],
-				raw: true,
-			}),
-			db.WorkoutHistory.findAll({
-				where: {
-					userId,
-					performedAt: {
-						[Op.gte]: literal("DATE_SUB(NOW(), INTERVAL 7 DAY)"),
-					},
-				},
-				attributes: [
-					[fn("DATE", col("performedAt")), "date"],
-					[fn("COUNT", col("id")), "count"],
-				],
-				group: [literal("DATE(performedAt)")],
-				order: [[literal("DATE(performedAt)"), "ASC"]],
-				raw: true,
-			}),
+		const sessionWhere = {
+			userId,
+			durationMin: { [Op.gt]: 0 },
+		};
+		const [sessionsTotal, durationTotalMin] = await Promise.all([
+			db.WorkoutHistory.count({ where: sessionWhere }),
+			db.WorkoutHistory.sum("durationMin", { where: sessionWhere }),
 		]);
 
+		const weeklyWhere = {
+			...sessionWhere,
+			[Op.or]: [
+				{ performedAt: { [Op.gte]: start, [Op.lt]: end } },
+				{
+					performedAt: null,
+					createdAt: { [Op.gte]: start, [Op.lt]: end },
+				},
+			],
+		};
+
+		const weeklyDurationMin =
+			(await db.WorkoutHistory.sum("durationMin", {
+				where: weeklyWhere,
+			})) || 0;
+
+		const weekTarget = 150;
+
 		res.json({
-			totals: totals[0] || { sessions: 0, durationMin: 0 },
-			last7Days: last7,
+			totals: {
+				sessions: sessionsTotal || 0,
+				durationMin: durationTotalMin || 0,
+			},
+			thisWeek: {
+				durationMin: weeklyDurationMin,
+				start: start.toISOString(),
+				end: end.toISOString(),
+			},
+			targets: {
+				weekDurationMin: weekTarget,
+			},
 		});
 	} catch (e) {
 		console.error("myStats:", e);
