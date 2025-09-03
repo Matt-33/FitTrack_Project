@@ -1,37 +1,54 @@
-{{!< layouts/main}}
-<main>
-  <h4>Utilisateurs</h4>
+<div class="card">
+  <div class="header">
+    <div>
+      <h1 class="m0">Utilisateurs</h1>
+      <p class="helper m0">Gère les comptes (recherche par nom/email).</p>
+    </div>
+    <form method="get" class="actions" action="/admin/users">
+      <input type="text" name="q" value="{{q}}" placeholder="Rechercher…"/>
+      <button class="btn" type="submit">Rechercher</button>
+      <a class="btn btn-ghost" href="/admin/users">Réinitialiser</a>
+    </form>
+  </div>
 
-  <form method="get" style="margin:.5rem 0;">
-    <input type="search" name="q" value="{{q}}" placeholder="Rechercher nom/email…">
-    <button type="submit" class="secondary">Rechercher</button>
-  </form>
-
-  <table role="grid">
-    <thead>
-      <tr>
-        <th>#</th><th>Nom</th><th>Email</th><th>Rôle</th><th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {{#each users}}
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
         <tr>
-          <td>{{this.id}}</td>
-          <td>{{this.name}}</td>
-          <td>{{this.email}}</td>
-          <td>{{this.role}}</td>
-          <td>
-            <a href="/admin/users/{{this.id}}/edit">Éditer</a>
-            <form method="post" action="/admin/users/{{this.id}}/delete" style="display:inline;">
-              <input type="hidden" name="_csrf" value="{{../csrfToken}}">
-              <button type="submit" class="contrast" onclick="return confirm('Supprimer ?')">Supprimer</button>
-            </form>
-          </td>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th style="width:220px">Actions</th>
         </tr>
-      {{/each}}
-      {{#unless users.length}}
-        <tr><td colspan="5">Aucun utilisateur.</td></tr>
-      {{/unless}}
-    </tbody>
-  </table>
-</main>
+      </thead>
+      <tbody>
+        {{#if users.length}}
+          {{#each users}}
+            <tr>
+              <td>{{this.id}}</td>
+              <td>{{this.name}}</td>
+              <td>{{this.email}}</td>
+              <td>
+                <span class="chip {{this.role}}">{{this.role}}</span>
+              </td>
+              <td>
+                <div class="actions">
+                  <a class="btn" href="/admin/users/{{this.id}}/edit">Éditer</a>
+                  <form method="post" action="/admin/users/{{this.id}}/delete" onsubmit="return confirm('Supprimer cet utilisateur ?');">
+                    <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                    <button class="btn btn-danger" type="submit">Supprimer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr>
+            <td colspan="5">Aucun utilisateur trouvé.</td>
+          </tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+</div>

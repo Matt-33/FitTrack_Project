@@ -1,0 +1,42 @@
+<div class="card">
+	<div class="header">
+		<div>
+			<h2 class="m0">Éditer l’exercice #{{ex.id}}</h2>
+			<p class="helper m0">Modifie les métadonnées de l’exercice.</p>
+		</div>
+		<div class="actions"><a class="btn btn-ghost" href="/admin/exercices">←
+				Retour</a></div>
+	</div>
+
+	<form class="form" method="post" action="/admin/exercices/{{ex.id}}">
+		<input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+		<div class="row">
+			<label>Nom</label>
+			<input type="text" name="name" required value="{{ex.name}}" />
+		</div>
+
+		<div class="row two">
+			<div>
+				<label>Groupe musculaire</label>
+				<input
+					type="text"
+					name="muscleGroup"
+					value="{{ex.targetMuscle}}"
+				/>
+			</div>
+			<div>
+				<label>Nombre de répétitions</label>
+				<input
+					type="text"
+					name="repetitions"
+					value="{{ex.defaultReps}}"
+				/>
+			</div>
+		</div>
+
+		<div class="row">
+			<button class="btn btn-success" type="submit">Enregistrer</button>
+		</div>
+	</form>
+</div>

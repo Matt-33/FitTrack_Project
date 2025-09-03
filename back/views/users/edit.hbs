@@ -1,21 +1,38 @@
-{{!< layouts/main}}
-<main>
-  <h4>Éditer l’utilisateur #{{user.id}}</h4>
-  <form method="post" action="/admin/users/{{user.id}}">
-    <input type="hidden" name="_csrf" value="{{csrfToken}}">
-    <label>Nom
-      <input type="text" name="name" value="{{user.name}}" required>
-    </label>
-    <label>Email
-      <input type="email" name="email" value="{{user.email}}" required>
-    </label>
-    <label>Rôle
-      <select name="role" required>
+<div class="card">
+  <div class="header">
+    <div>
+      <h2 class="m0">Éditer l’utilisateur #{{user.id}}</h2>
+      <p class="helper m0">Met à jour le nom, l’email et le rôle.</p>
+    </div>
+    <div class="actions">
+      <a class="btn btn-ghost" href="/admin/users">← Retour</a>
+    </div>
+  </div>
+
+  <form class="form" method="post" action="/admin/users/{{user.id}}">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}"/>
+
+    <div class="row two">
+      <div>
+        <label>Nom</label>
+        <input type="text" name="name" required value="{{user.name}}"/>
+      </div>
+      <div>
+        <label>Email</label>
+        <input type="email" name="email" required value="{{user.email}}"/>
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Rôle</label>
+      <select name="role">
         <option value="client" {{#if (eq user.role "client")}}selected{{/if}}>client</option>
-        <option value="coach" {{#if (eq user.role "coach")}}selected{{/if}}>coach</option>
+        <option value="coach"  {{#if (eq user.role "coach")}}selected{{/if}}>coach</option>
       </select>
-    </label>
-    <button type="submit">Enregistrer</button>
-    <a href="/admin/users" class="secondary">Annuler</a>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-success" type="submit">Enregistrer</button>
+    </div>
   </form>
-</main>
+</div>

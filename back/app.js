@@ -27,14 +27,18 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const app = express(); // ✅ créer l’app en premier
+const app = express();
 
 // ---------- View engine (Admin) ----------
 app.engine(
 	"hbs",
 	engine({
 		extname: ".hbs",
-		helpers: { eq: (a, b) => a === b },
+		helpers: {
+			eq: (a, b) => a === b,
+			// barre de stats : 8px par unité, bornée à 150px
+			calcHeight: (v) => Math.min(150, (Number(v) || 0) * 8),
+		},
 	})
 );
 app.set("view engine", "hbs");
@@ -43,26 +47,21 @@ app.use("/public", express.static(path.join(__dirname, "public")));
 
 // ---------- Sécurité & middlewares globaux ----------
 app.set("trust proxy", 1);
-
-// Helmet (désactive CSP pour tolérer les vues simples)
 app.use(helmet({ contentSecurityPolicy: false }));
 
-// Sessions + flash (utilisés par /admin)
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET || "change-me-session",
 		resave: false,
 		saveUninitialized: false,
-		cookie: { sameSite: "lax", secure: false }, // secure: true en prod HTTPS
+		cookie: { sameSite: "lax", secure: false },
 	})
 );
 app.use(flash());
 
-// Parsers (JSON + forms HTML)
 app.use(express.json({ limit: "1mb" }));
-app.use(express.urlencoded({ extended: true })); // ✅ nécessaire pour _csrf des formulaires
+app.use(express.urlencoded({ extended: true }));
 
-// ---------- Rate limit (global) ----------
 app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 300 }));
 
 // ---------- Admin (avec CSRF) ----------
@@ -83,7 +82,7 @@ app.use(
 	adminRoutes
 );
 
-// ---------- CORS uniquement pour l’API ----------
+// ---------- CORS pour l’API ----------
 const origins = (
 	process.env.CORS_ORIGINS || "http://localhost:5173,http://127.0.0.1:5173"
 )
@@ -100,7 +99,6 @@ const corsMiddleware = cors({
 	credentials: true,
 });
 
-// ✅ suffit amplement
 app.use("/api", corsMiddleware);
 
 // ---------- Routes API JSON ----------
@@ -115,14 +113,10 @@ app.use("/api/stats", statsRoutes);
 
 // ---------- Démarrage + sync DB ----------
 const PORT = process.env.PORT || 5000;
-const isDev = (process.env.NODE_ENV || "development") !== "production";
-
-// Pilotage via .env: DB_SYNC=force | alter | safe
 const syncMode = process.env.DB_SYNC || "safe";
 let syncOptions = {};
 if (syncMode === "force") syncOptions = { force: true };
 if (syncMode === "alter") syncOptions = { alter: true };
-if (syncMode === "safe") syncOptions = {};
 
 db.sequelize
 	.sync(syncOptions)

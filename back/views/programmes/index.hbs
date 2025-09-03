@@ -1,0 +1,43 @@
+<div class="card">
+  <div class="header">
+    <div>
+      <h1 class="m0">Programmes</h1>
+      <p class="helper m0">Liste des programmes publiés ou brouillons.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th><th>Titre</th><th>Niveau</th><th>Objectif</th><th>Publié</th><th>Coach</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if progs.length}}
+          {{#each progs}}
+            <tr>
+              <td>{{this.id}}</td>
+              <td>{{this.title}}</td>
+              <td>{{this.level}}</td>
+              <td>{{this.goal}}</td>
+              <td>{{#if this.isPublished}}✅{{else}}❌{{/if}}</td>
+              <td>{{this.coach.name}}</td>
+              <td>
+                <div class="actions">
+                  <a class="btn" href="/admin/programmes/{{this.id}}/edit">Éditer</a>
+                  <form method="post" action="/admin/programmes/{{this.id}}/delete" onsubmit="return confirm('Supprimer ce programme ?');">
+                    <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                    <button class="btn btn-danger" type="submit">Supprimer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr><td colspan="7">Aucun programme.</td></tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+</div>

@@ -1,0 +1,41 @@
+<div class="card">
+  <div class="header">
+    <div>
+      <h1 class="m0">Exercices</h1>
+      <p class="helper m0">Catalogue des exercices disponibles.</p>
+    </div>
+  </div>
+
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>#</th><th>Nom</th><th>Muscle</th><th>Nombres de répétitons</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#if items.length}}
+          {{#each items}}
+            <tr>
+              <td>{{this.id}}</td>
+              <td>{{this.name}}</td>
+              <td>{{this.targetMuscle}}</td>
+              <td>{{this.defaultReps}}</td>
+              <td>
+                <div class="actions">
+                  <a class="btn" href="/admin/exercices/{{this.id}}/edit">Éditer</a>
+                  <form method="post" action="/admin/exercices/{{this.id}}/delete" onsubmit="return confirm('Supprimer cet exercice ?');">
+                    <input type="hidden" name="_csrf" value="{{../csrfToken}}">
+                    <button class="btn btn-danger" type="submit">Supprimer</button>
+                  </form>
+                </div>
+              </td>
+            </tr>
+          {{/each}}
+        {{else}}
+          <tr><td colspan="5">Aucun exercice.</td></tr>
+        {{/if}}
+      </tbody>
+    </table>
+  </div>
+</div>

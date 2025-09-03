@@ -1,0 +1,53 @@
+<div class="card">
+  <div class="header">
+    <div>
+      <h2 class="m0">Éditer le programme #{{p.id}}</h2>
+      <p class="helper m0">Coach: {{p.coach.name}}</p>
+    </div>
+    <div class="actions"><a class="btn btn-ghost" href="/admin/programmes">← Retour</a></div>
+  </div>
+
+  <form class="form" method="post" action="/admin/programmes/{{p.id}}">
+    <input type="hidden" name="_csrf" value="{{csrfToken}}"/>
+
+    <div class="row">
+      <label>Titre</label>
+      <input type="text" name="title" required value="{{p.title}}"/>
+    </div>
+
+    <div class="row two">
+      <div>
+        <label>Niveau</label>
+        <select name="level">
+          <option value="">(non défini)</option>
+          <option value="debutant" {{#if (eq p.level "debutant")}}selected{{/if}}>Débutant</option>
+          <option value="intermediaire" {{#if (eq p.level "intermediaire")}}selected{{/if}}>Intermédiaire</option>
+          <option value="avance" {{#if (eq p.level "avance")}}selected{{/if}}>Avancé</option>
+        </select>
+      </div>
+      <div>
+        <label>Objectif</label>
+        <select name="goal">
+          <option value="">(non défini)</option>
+          <option value="hypertrophie" {{#if (eq p.goal "hypertrophie")}}selected{{/if}}>Hypertrophie</option>
+          <option value="force" {{#if (eq p.goal "force")}}selected{{/if}}>Force</option>
+          <option value="endurance" {{#if (eq p.goal "endurance")}}selected{{/if}}>Endurance</option>
+          <option value="perte_de_poids" {{#if (eq p.goal "perte_de_poids")}}selected{{/if}}>Perte de poids</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <label>Description</label>
+      <textarea name="description" rows="4">{{p.description}}</textarea>
+    </div>
+
+    <div class="row">
+      <label><input type="checkbox" name="isPublished" {{#if p.isPublished}}checked{{/if}}/> Publié</label>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-success" type="submit">Enregistrer</button>
+    </div>
+  </form>
+</div>

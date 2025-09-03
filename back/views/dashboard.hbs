@@ -1,0 +1,92 @@
+<div class="grid grid-2">
+  <div class="card">
+    <div class="header">
+      <h2 class="m0">Aperçu</h2>
+      <div class="actions">
+        <a class="btn btn-ghost" href="/admin/users">Voir utilisateurs</a>
+        <a class="btn btn-ghost" href="/admin/programmes">Voir programmes</a>
+        <a class="btn btn-ghost" href="/admin/exercices">Voir exercices</a>
+      </div>
+    </div>
+    <div class="table-wrap">
+      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap:12px">
+        <div class="card" style="padding:12px">
+          <div class="helper">Utilisateurs</div>
+          <div style="font-weight:800; font-size:22px">{{stats.cards.totalUsers}}</div>
+          <div class="helper">Clients: {{stats.cards.clients}} · Coachs: {{stats.cards.coaches}}</div>
+        </div>
+        <div class="card" style="padding:12px">
+          <div class="helper">Programmes</div>
+          <div style="font-weight:800; font-size:22px">{{stats.cards.programmes}}</div>
+          <div class="helper">Exercices: {{stats.cards.exercices}}</div>
+        </div>
+        <div class="card" style="padding:12px">
+          <div class="helper">Activité</div>
+          <div style="font-weight:800; font-size:22px">{{stats.cards.sessions}}</div>
+          <div class="helper">Inscriptions: {{stats.cards.enrollments}}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="header"><h2 class="m0">Top programmes</h2></div>
+    <div class="table-wrap">
+      <table class="table">
+        <thead><tr><th>#</th><th>Titre</th><th>Inscriptions</th></tr></thead>
+        <tbody>
+          {{#if stats.topProgs.length}}
+            {{#each stats.topProgs}}
+              <tr>
+                <td>{{this.id}}</td>
+                <td>{{this.title}}</td>
+                <td>{{this.count}}</td>
+              </tr>
+            {{/each}}
+          {{else}}
+            <tr><td colspan="3">Pas de données d’inscription.</td></tr>
+          {{/if}}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<div class="grid" style="margin-top:14px">
+  <div class="card">
+    <div class="header"><h2 class="m0">Sessions (7 jours)</h2></div>
+    <div class="table-wrap">
+      <div style="display:flex; gap:8px; align-items:flex-end; height:160px">
+        {{#each stats.charts.sessions7}}
+          {{!-- barres verticales simples --}}
+          <div title="{{lookup ../stats.charts.days @index}}: {{this}}"
+               style="width:100%; max-width:40px; height: {{calcHeight this}}px; background: linear-gradient(135deg, #3b82f6, #69a3ff);
+                      border-radius:10px; border:1px solid rgba(59,130,246,.45)"></div>
+        {{/each}}
+      </div>
+      <div class="helper mt8">
+        {{#each stats.charts.days}}
+          <span style="display:inline-block; min-width:40px; text-align:center">{{this}}</span>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="header"><h2 class="m0">Nouveaux utilisateurs (7 jours)</h2></div>
+    <div class="table-wrap">
+      <div style="display:flex; gap:8px; align-items:flex-end; height:160px">
+        {{#each stats.charts.signups7}}
+          <div title="{{lookup ../stats.charts.days @index}}: {{this}}"
+               style="width:100%; max-width:40px; height: {{calcHeight this}}px; background: linear-gradient(135deg, #22c55e, #68e08f);
+                      border-radius:10px; border:1px solid rgba(34,197,94,.45)"></div>
+        {{/each}}
+      </div>
+      <div class="helper mt8">
+        {{#each stats.charts.days}}
+          <span style="display:inline-block; min-width:40px; text-align:center">{{this}}</span>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+</div>

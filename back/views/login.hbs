@@ -1,14 +1,58 @@
-{{!< layouts/main}}
-<main>
-	<h4>Connexion admin</h4>
-	<form method="post" action="/admin/login">
-		<input type="hidden" name="_csrf" value="{{csrfToken}}" />
-		<label>Email
-			<input type="email" name="email" value="{{email}}" required />
-		</label>
-		<label>Mot de passe
-			<input type="password" name="password" required />
-		</label>
-		<button type="submit">Se connecter</button>
-	</form>
-</main>
+{{! Page de connexion admin }}
+{{! On passe isLogin=true dans le render si tu veux ce rendu sans sidebar }}
+<div class="login-screen">
+	<div class="card login-card">
+		<h1 class="login-title m0">FitTrack · Admin</h1>
+		<p class="login-sub">Espace de gestion</p>
+
+		{{#if flash.error}}
+			{{#each flash.error}}
+				<div class="flash error">{{this}}</div>
+			{{/each}}
+		{{/if}}
+		{{#if flash.success}}
+			{{#each flash.success}}
+				<div class="flash success">{{this}}</div>
+			{{/each}}
+		{{/if}}
+
+		<form class="form" method="post" action="/admin/login">
+			<input type="hidden" name="_csrf" value="{{csrfToken}}" />
+
+			<div class="row">
+				<label>Email</label>
+				<input
+					type="email"
+					name="email"
+					required
+					placeholder="admin@fittrack.local"
+				/>
+			</div>
+
+			<div class="row">
+				<label>Mot de passe</label>
+				<input
+					type="password"
+					name="password"
+					required
+					placeholder="••••••••"
+				/>
+			</div>
+
+			<div class="row">
+				<button
+					class="btn btn-primary"
+					type="submit"
+					style="width:100%"
+				>Se connecter</button>
+			</div>
+
+			<p class="helper">Astuce : définis
+				<code>ADMIN_EMAIL</code>
+				et
+				<code>ADMIN_PASSWORD</code>
+				dans
+				<code>.env</code></p>
+		</form>
+	</div>
+</div>

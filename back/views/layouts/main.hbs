@@ -1,54 +1,68 @@
+<!DOCTYPE html>
 <html lang="fr">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width,initial-scale=1" />
-		<title>{{title}}</title>
-		<link
-			rel="stylesheet"
-			href="https://unpkg.com/@picocss/pico@2/css/pico.min.css"
-		/>
-		<style>
-			body { padding: 1rem; } header { display:flex; align-items:center;
-			justify-content:space-between; margin-bottom:1rem; } .flash {
-			margin:.5rem 0; } .flash.error { color:#ff6b6b; } .flash.success {
-			color:#2ecc71; } table { width: 100%; }
-		</style>
-	</head>
-	<body>
-		<header>
-			<h3 style="margin:0;">FitTrack – Admin</h3>
-			<nav>
-				<ul>
-					<li><a href="/admin/users">Utilisateurs</a></li>
-					<li>
-						<form method="post" action="/admin/logout">
-							<input
-								type="hidden"
-								name="_csrf"
-								value="{{csrfToken}}"
-							/>
-							<button
-								type="submit"
-								class="secondary"
-							>Déconnexion</button>
-						</form>
-					</li>
-				</ul>
-			</nav>
-		</header>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>{{#if title}}{{title}} · {{/if}}FitTrack Admin</title>
+  <link rel="stylesheet" href="/public/admin.css"/>
+  <meta name="csrf-token" content="{{csrfToken}}">
+</head>
+<body>
+  {{!-- Page login utilise aussi ce layout pour cohérence --}}
+  {{#if isLogin}}
+    {{{body}}}
+  {{else}}
+    <div class="admin-shell">
+      <aside class="sidebar" id="sidebar">
+        <div class="brand">
+          <span class="dot"></span> FitTrack · Admin
+        </div>
+        <nav class="nav">
+			<a href="/admin" class="{{#if (eq page 'dashboard')}}active{{/if}}">📊 Dashboard</a>
+			<a href="/admin/users" class="{{#if (eq page 'users')}}active{{/if}}">👥 Utilisateurs</a>
+			<a href="/admin/programmes" class="{{#if (eq page 'programmes')}}active{{/if}}">📚 Programmes</a>
+			<a href="/admin/exercices" class="{{#if (eq page 'exercices')}}active{{/if}}">🏋️ Exercices</a>
+			<form method="post" action="/admin/logout" class="mt8">
+				<input type="hidden" name="_csrf" value="{{csrfToken}}">
+				<button class="btn btn-ghost">🚪 Déconnexion</button>
+			</form>
+		</nav>
+      </aside>
 
-		{{#if flash.error}}
-			{{#each flash.error}}
-				<div class="flash error">{{this}}</div>
-			{{/each}}
-		{{/if}}
+      <main>
+        <div class="topbar">
+          <button class="burger" aria-controls="sidebar" aria-label="Menu" onclick="toggleSidebar()">☰</button>
+          <div class="right">
+            <span class="badge">Admin connecté</span>
+          </div>
+        </div>
 
-		{{#if flash.success}}
-			{{#each flash.success}}
-				<div class="flash success">{{this}}</div>
-			{{/each}}
-		{{/if}}
+        <div class="container">
+          {{#if flash.error}}
+            {{#each flash.error}}
+              <div class="flash error">{{this}}</div>
+            {{/each}}
+          {{/if}}
+          {{#if flash.success}}
+            {{#each flash.success}}
+              <div class="flash success">{{this}}</div>
+            {{/each}}
+          {{/if}}
 
-		{{{body}}}
-	</body>
+          {{{body}}}
+        </div>
+      </main>
+    </div>
+  {{/if}}
+
+  <script>
+    const $ = (sel)=>document.querySelector(sel);
+    function toggleSidebar(){
+      const sb = $('#sidebar');
+      sb?.classList.toggle('open');
+    }
+    // Auto-hide flash
+    setTimeout(()=>document.querySelectorAll('.flash').forEach(n=>n.remove()), 4500);
+  </script>
+</body>
 </html>
