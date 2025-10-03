@@ -45,7 +45,6 @@ export const dashboard = async (req, res) => {
 		sessionsCount,
 		sessionsByDay,
 		signupsByDay,
-		topProgs,
 	] = await Promise.all([
 		db.User.count(),
 		db.User.count({ where: { role: "client" } }),
@@ -54,7 +53,6 @@ export const dashboard = async (req, res) => {
 		db.Exercice.count(),
 		db.Enrollment ? db.Enrollment.count() : Promise.resolve(0),
 		db.WorkoutHistory.count(),
-		// Sessions des 7 derniers jours
 		db.WorkoutHistory.findAll({
 			attributes: [
 				[fn("DATE", col("performedAt")), "d"],
@@ -64,7 +62,6 @@ export const dashboard = async (req, res) => {
 			group: [literal("DATE(performedAt)")],
 			raw: true,
 		}),
-		// Inscriptions (users) sur 7 jours
 		db.User.findAll({
 			attributes: [
 				[fn("DATE", col("createdAt")), "d"],
@@ -74,30 +71,13 @@ export const dashboard = async (req, res) => {
 			group: [literal("DATE(createdAt)")],
 			raw: true,
 		}),
-		// Top programmes par nb d'abonnements
-		db.Enrollment
-			? db.Enrollment.findAll({
-					attributes: [
-						"programmeId",
-						[fn("COUNT", col("programmeId")), "c"],
-					],
-					include: [
-						{ model: db.Programme, attributes: ["id", "title"] },
-					],
-					group: ["programmeId", "Programme.id"],
-					order: [[literal("c"), "DESC"]],
-					limit: 5,
-					raw: true,
-					nest: true,
-			  })
-			: Promise.resolve([]),
 	]);
 
 	// Normalisation des séries 7 jours (labels & valeurs)
 	const days = Array.from({ length: 7 }).map((_, i) => {
 		const d = new Date(start7);
 		d.setDate(start7.getDate() + i);
-		return d.toISOString().slice(0, 10); // YYYY-MM-DD
+		return d.toISOString().slice(0, 10);
 	});
 	const mapToSeries = (rows) => {
 		const dict = Object.fromEntries(rows.map((r) => [r.d, Number(r.c)]));
@@ -119,11 +99,6 @@ export const dashboard = async (req, res) => {
 			sessions7: mapToSeries(sessionsByDay),
 			signups7: mapToSeries(signupsByDay),
 		},
-		topProgs: (topProgs || []).map((r) => ({
-			id: r.programmeId,
-			title: r.Programme?.title || `#${r.programmeId}`,
-			count: Number(r.c),
-		})),
 	};
 
 	res.render("dashboard", {
@@ -133,7 +108,7 @@ export const dashboard = async (req, res) => {
 	});
 };
 
-/* -------- Users (déjà en place, en "raw: true") -------- */
+/* -------- Users -------- */
 export const listUsers = async (req, res) => {
 	const q = (req.query.q || "").trim();
 	const where = q
@@ -196,7 +171,7 @@ export const deleteUser = async (req, res) => {
 	res.redirect("/admin/users");
 };
 
-/* -------- Programmes CRUD -------- */
+/* -------- Programmes -------- */
 const progSchema = z.object({
 	title: z.string().min(2),
 	level: z
@@ -281,7 +256,7 @@ export const deleteProgramme = async (req, res) => {
 	res.redirect("/admin/programmes");
 };
 
-/* -------- Exercices CRUD -------- */
+/* -------- Exercices -------- */
 const exSchema = z.object({
 	name: z.string().min(2),
 	muscleGroup: z.string().optional().nullable(),

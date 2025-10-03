@@ -6,7 +6,7 @@ const Workout = db.Workout;
 const createWorkoutSchema = z.object({
 	title: z.string().min(2, "Titre trop court"),
 	description: z.string().optional().nullable(),
-	reps: z.string().min(1, "Reps requis"), // à adapter si tu veux un nombre
+	reps: z.string().min(1, "Reps requis"),
 });
 
 export const createWorkout = async (req, res) => {

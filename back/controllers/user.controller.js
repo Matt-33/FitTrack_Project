@@ -70,7 +70,7 @@ export const updateProfile = async (req, res) => {
 	}
 };
 
-// ▶️ CHANGE PASSWORD
+// ▶️ Changement mot de passe
 const pwdSchema = z.object({
 	currentPassword: z.string().min(6),
 	newPassword: z.string().min(6),
@@ -107,7 +107,7 @@ export const changePassword = async (req, res) => {
 	}
 };
 
-// ▶️ UPGRADE TO COACH (avec code optionnel)
+// ▶️ Upgrade un compte en coach(avec code optionnel)
 const inviteCode = process.env.COACH_INVITE_CODE || null;
 const upgradeSchema = z.object({ code: z.string().optional() });
 

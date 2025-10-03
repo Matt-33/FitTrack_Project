@@ -1,53 +1,30 @@
-<div class="grid grid-2">
-  <div class="card">
-    <div class="header">
-      <h2 class="m0">Aperçu</h2>
-      <div class="actions">
-        <a class="btn btn-ghost" href="/admin/users">Voir utilisateurs</a>
-        <a class="btn btn-ghost" href="/admin/programmes">Voir programmes</a>
-        <a class="btn btn-ghost" href="/admin/exercices">Voir exercices</a>
-      </div>
-    </div>
-    <div class="table-wrap">
-      <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap:12px">
-        <div class="card" style="padding:12px">
-          <div class="helper">Utilisateurs</div>
-          <div style="font-weight:800; font-size:22px">{{stats.cards.totalUsers}}</div>
-          <div class="helper">Clients: {{stats.cards.clients}} · Coachs: {{stats.cards.coaches}}</div>
-        </div>
-        <div class="card" style="padding:12px">
-          <div class="helper">Programmes</div>
-          <div style="font-weight:800; font-size:22px">{{stats.cards.programmes}}</div>
-          <div class="helper">Exercices: {{stats.cards.exercices}}</div>
-        </div>
-        <div class="card" style="padding:12px">
-          <div class="helper">Activité</div>
-          <div style="font-weight:800; font-size:22px">{{stats.cards.sessions}}</div>
-          <div class="helper">Inscriptions: {{stats.cards.enrollments}}</div>
-        </div>
-      </div>
+<div class="card">
+  <div class="header">
+    <h2 class="m0">Aperçu</h2>
+    <div class="actions">
+      <a class="btn btn-ghost" href="/admin/users">Voir utilisateurs</a>
+      <a class="btn btn-ghost" href="/admin/programmes">Voir programmes</a>
+      <a class="btn btn-ghost" href="/admin/exercices">Voir exercices</a>
     </div>
   </div>
 
-  <div class="card">
-    <div class="header"><h2 class="m0">Top programmes</h2></div>
-    <div class="table-wrap">
-      <table class="table">
-        <thead><tr><th>#</th><th>Titre</th><th>Inscriptions</th></tr></thead>
-        <tbody>
-          {{#if stats.topProgs.length}}
-            {{#each stats.topProgs}}
-              <tr>
-                <td>{{this.id}}</td>
-                <td>{{this.title}}</td>
-                <td>{{this.count}}</td>
-              </tr>
-            {{/each}}
-          {{else}}
-            <tr><td colspan="3">Pas de données d’inscription.</td></tr>
-          {{/if}}
-        </tbody>
-      </table>
+  <div class="table-wrap">
+    <div class="grid" style="grid-template-columns: repeat(3, 1fr); gap:12px">
+      <div class="card" style="padding:12px">
+        <div class="helper">Utilisateurs</div>
+        <div style="font-weight:800; font-size:22px">{{stats.cards.totalUsers}}</div>
+        <div class="helper">Clients: {{stats.cards.clients}} · Coachs: {{stats.cards.coaches}}</div>
+      </div>
+      <div class="card" style="padding:12px">
+        <div class="helper">Programmes</div>
+        <div style="font-weight:800; font-size:22px">{{stats.cards.programmes}}</div>
+        <div class="helper">Exercices: {{stats.cards.exercices}}</div>
+      </div>
+      <div class="card" style="padding:12px">
+        <div class="helper">Activité</div>
+        <div style="font-weight:800; font-size:22px">{{stats.cards.sessions}}</div>
+        <div class="helper">Inscriptions: {{stats.cards.enrollments}}</div>
+      </div>
     </div>
   </div>
 </div>

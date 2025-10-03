@@ -8,7 +8,6 @@
   <meta name="csrf-token" content="{{csrfToken}}">
 </head>
 <body>
-  {{!-- Page login utilise aussi ce layout pour cohérence --}}
   {{#if isLogin}}
     {{{body}}}
   {{else}}
@@ -61,7 +60,6 @@
       const sb = $('#sidebar');
       sb?.classList.toggle('open');
     }
-    // Auto-hide flash
     setTimeout(()=>document.querySelectorAll('.flash').forEach(n=>n.remove()), 4500);
   </script>
 </body>

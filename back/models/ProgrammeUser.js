@@ -1,7 +1,7 @@
 import { DataTypes } from "sequelize";
 
-const ProgrammeUserModel = (sequelize) => {
-	return sequelize.define(
+export default (sequelize) => {
+	const ProgrammeUser = sequelize.define(
 		"ProgrammeUser",
 		{
 			id: {
@@ -9,11 +9,15 @@ const ProgrammeUserModel = (sequelize) => {
 				autoIncrement: true,
 				primaryKey: true,
 			},
+			userId: { type: DataTypes.INTEGER, allowNull: false },
+			programmeId: { type: DataTypes.INTEGER, allowNull: false },
 		},
 		{
+			tableName: "ProgrammeUsers",
+			timestamps: true,
 			indexes: [{ unique: true, fields: ["userId", "programmeId"] }],
 		}
 	);
-};
 
-export default ProgrammeUserModel;
+	return ProgrammeUser;
+};

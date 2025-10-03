@@ -8,16 +8,31 @@ import {
 	updateExercice,
 	deleteExercice,
 } from "../controllers/exercice.controller.js";
+import { validate } from "../middleware/validate.js";
+import {
+	exerciceCreateSchema,
+	exerciceUpdateSchema,
+} from "../validators/exercice.validator.js";
 
 const router = express.Router();
 
-// Public
 router.get("/", listExercices);
 router.get("/:id", getExercice);
 
-// Coach only
-router.post("/", verifyToken, isCoach, createExercice);
-router.put("/:id", verifyToken, isCoach, updateExercice);
+router.post(
+	"/",
+	verifyToken,
+	isCoach,
+	validate(exerciceCreateSchema),
+	createExercice
+);
+router.put(
+	"/:id",
+	verifyToken,
+	isCoach,
+	validate(exerciceUpdateSchema),
+	updateExercice
+);
 router.delete("/:id", verifyToken, isCoach, deleteExercice);
 
 export default router;

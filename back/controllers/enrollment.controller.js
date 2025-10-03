@@ -1,77 +1,86 @@
-import { db } from "../models/index.js";
 import { z } from "zod";
+import { db } from "../models/index.js";
 
-const enrollSchema = z.object({
+const createSchema = z.object({
 	programmeId: z.number().int().positive(),
 });
 
-export const enroll = async (req, res) => {
-	const parse = enrollSchema.safeParse(req.body);
-	if (!parse.success)
+/**
+ * POST /api/enrollments
+ * body: { programmeId }
+ */
+export const createEnrollment = async (req, res) => {
+	const parsed = createSchema.safeParse(req.body);
+	if (!parsed.success) {
 		return res
 			.status(400)
-			.json({ message: "Payload invalide", issues: parse.error.issues });
-	const { programmeId } = parse.data;
-
-	try {
-		const prog = await db.Programme.findByPk(programmeId, {
-			attributes: ["id", "isPublished", "coachId"],
-		});
-		if (!prog)
-			return res.status(404).json({ message: "Programme introuvable." });
-		if (!prog.isPublished && prog.coachId !== req.user.id) {
-			return res.status(403).json({ message: "Programme non publié." });
-		}
-
-		await db.ProgrammeUser.findOrCreate({
-			where: { userId: req.user.id, programmeId: prog.id },
-			defaults: { userId: req.user.id, programmeId: prog.id },
-		});
-
-		res.status(201).json({ message: "Inscription enregistrée." });
-	} catch (e) {
-		console.error("enroll:", e);
-		res.status(500).json({ message: "Erreur serveur." });
+			.json({ message: "Payload invalide", issues: parsed.error.issues });
 	}
+
+	const { programmeId } = parsed.data;
+	const programme = await db.Programme.findByPk(programmeId, {
+		attributes: ["id", "title", "isPublished"],
+	});
+	if (!programme)
+		return res.status(404).json({ message: "Programme introuvable." });
+	if (programme.isPublished === false) {
+		return res.status(403).json({ message: "Programme non publié." });
+	}
+	const [row, created] = await db.ProgrammeUser.findOrCreate({
+		where: { userId: req.user.id, programmeId },
+		defaults: { userId: req.user.id, programmeId },
+	});
+
+	return res.status(created ? 201 : 200).json({
+		message: created ? "Inscription effectuée" : "Déjà inscrit",
+		enrollment: row,
+	});
 };
 
-export const unenroll = async (req, res) => {
-	const programmeId = parseInt(req.params.programmeId, 10);
-	if (!Number.isInteger(programmeId) || programmeId <= 0)
-		return res.status(400).json({ message: "programmeId invalide." });
+/**
+ * DELETE /api/enrollments/:programmeId
+ */
+export const deleteEnrollment = async (req, res) => {
+	const programmeId = Number(req.params.programmeId || 0);
+	if (!programmeId)
+		return res.status(400).json({ message: "programmeId invalide" });
 
-	try {
-		const deleted = await db.ProgrammeUser.destroy({
-			where: { userId: req.user.id, programmeId },
-		});
-		if (!deleted)
-			return res
-				.status(404)
-				.json({ message: "Inscription introuvable." });
-		res.json({ message: "Inscription supprimée." });
-	} catch (e) {
-		console.error("unenroll:", e);
-		res.status(500).json({ message: "Erreur serveur." });
-	}
+	const count = await db.ProgrammeUser.destroy({
+		where: { userId: req.user.id, programmeId },
+	});
+
+	if (!count)
+		return res.status(404).json({ message: "Inscription introuvable" });
+	return res.json({ message: "Désinscription effectuée" });
 };
 
-export const myProgrammes = async (req, res) => {
-	try {
-		const programmes = await db.Programme.findAll({
-			include: [
-				{
-					model: db.User,
-					as: "participants",
-					attributes: [],
-					where: { id: req.user.id },
-				},
-				{ model: db.User, as: "coach", attributes: ["id", "name"] },
-			],
-			order: [["createdAt", "DESC"]],
-		});
-		res.json(programmes);
-	} catch (e) {
-		console.error("myProgrammes:", e);
-		res.status(500).json({ message: "Erreur serveur." });
-	}
+/**
+ * GET /api/enrollments/mine
+ * -> retourne la liste des programmes suivis par l'utilisateur
+ */
+export const myEnrollments = async (req, res) => {
+	const rows = await db.ProgrammeUser.findAll({
+		where: { userId: req.user.id },
+		include: [
+			{
+				model: db.Programme,
+				attributes: [
+					"id",
+					"title",
+					"level",
+					"goal",
+					"description",
+					"isPublished",
+				],
+				include: [
+					{ model: db.User, as: "coach", attributes: ["id", "name"] },
+				],
+			},
+		],
+		order: [["createdAt", "DESC"]],
+	});
+
+	const programmes = rows.map((r) => r.Programme).filter(Boolean);
+
+	res.json(programmes);
 };

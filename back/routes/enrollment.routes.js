@@ -1,17 +1,22 @@
 import express from "express";
 import verifyToken from "../middleware/auth.js";
 import {
-	enroll,
-	unenroll,
-	myProgrammes,
+	createEnrollment,
+	deleteEnrollment,
+	myEnrollments,
 } from "../controllers/enrollment.controller.js";
 
 const router = express.Router();
 
 router.use(verifyToken);
 
-router.post("/", enroll);
-router.delete("/:programmeId", unenroll);
-router.get("/mine", myProgrammes);
+// S'inscrire à un programme
+router.post("/", createEnrollment);
+
+// Se désinscrire d’un programme
+router.delete("/:programmeId", deleteEnrollment);
+
+// Mes programmes (abonnements)
+router.get("/mine", myEnrollments);
 
 export default router;

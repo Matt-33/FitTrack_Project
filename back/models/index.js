@@ -23,8 +23,7 @@ import ProgrammeExerciceModel from "./ProgrammeExercice.js";
 import WorkoutHistoryModel from "./WorkoutHistory.js";
 import ProgrammeUserModel from "./ProgrammeUser.js";
 
-// Initialisation des modèles
-
+// ----- Init modèles
 const ProgrammeUser = ProgrammeUserModel(sequelize);
 const User = UserModel(sequelize);
 const Workout = WorkoutModel(sequelize);
@@ -33,6 +32,7 @@ const Exercice = ExerciceModel(sequelize);
 const ProgrammeExercice = ProgrammeExerciceModel(sequelize);
 const WorkoutHistory = WorkoutHistoryModel(sequelize);
 
+// ----- Relations
 User.hasMany(Workout, { foreignKey: "userId" });
 Workout.belongsTo(User, { foreignKey: "userId" });
 
@@ -51,6 +51,7 @@ Exercice.belongsToMany(Programme, {
 	foreignKey: "exerciceId",
 	otherKey: "programmeId",
 });
+
 User.belongsToMany(Programme, {
 	through: ProgrammeUser,
 	as: "enrolledProgrammes",
@@ -64,7 +65,16 @@ Programme.belongsToMany(User, {
 	otherKey: "userId",
 });
 
-// Historique: un user journalise des séances sur un programme et/ou un exercice
+/* 🔹 AJOUTER CES ASSOCIATIONS POUR POUVOIR INCLURE DEPUIS LE PIVOT */
+ProgrammeUser.belongsTo(User, { foreignKey: "userId" });
+ProgrammeUser.belongsTo(Programme, { foreignKey: "programmeId" });
+User.hasMany(ProgrammeUser, { foreignKey: "userId", as: "enrollments" });
+Programme.hasMany(ProgrammeUser, {
+	foreignKey: "programmeId",
+	as: "enrollments",
+});
+
+// Historique
 User.hasMany(WorkoutHistory, { foreignKey: "userId" });
 WorkoutHistory.belongsTo(User, { foreignKey: "userId" });
 
