@@ -3,12 +3,11 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-// Priorité à une URL complète (Railway expose MYSQL_URL)
 const DB_URL =
 	process.env.DB_URL ||
-	process.env.MYSQL_URL || // si tu veux directement pointer sur MYSQL_URL
+	process.env.MYSQL_URL ||
 	process.env.DATABASE_URL ||
-	""; // au cas où
+	"";
 
 let sequelize;
 
@@ -26,7 +25,7 @@ if (DB_URL) {
 		process.env.DB_USER,
 		process.env.DB_PASSWORD,
 		{
-			host: process.env.DB_HOST || "127.0.0.1",
+			host: process.env.DB_HOST,
 			port: Number(process.env.DB_PORT || 3306),
 			dialect: "mysql",
 			logging: false,
