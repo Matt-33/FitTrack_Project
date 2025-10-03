@@ -3,17 +3,37 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-const sequelize = new Sequelize(
-	process.env.DB_NAME,
-	process.env.DB_USER,
-	process.env.DB_PASSWORD,
-	{
-		host: process.env.DB_HOST,
-		port: process.env.DB_PORT,
+// Priorité à une URL complète (Railway expose MYSQL_URL)
+const DB_URL =
+	process.env.DB_URL ||
+	process.env.MYSQL_URL || // si tu veux directement pointer sur MYSQL_URL
+	process.env.DATABASE_URL ||
+	""; // au cas où
+
+let sequelize;
+
+if (DB_URL) {
+	// Ex: mysql://root:pass@mysql.railway.internal:3306/railway
+	sequelize = new Sequelize(DB_URL, {
 		dialect: "mysql",
 		logging: false,
-	}
-);
+		pool: { max: 5, min: 0, idle: 10000 },
+	});
+} else {
+	// Fallback local (env .env de dev)
+	sequelize = new Sequelize(
+		process.env.DB_NAME,
+		process.env.DB_USER,
+		process.env.DB_PASSWORD,
+		{
+			host: process.env.DB_HOST || "127.0.0.1",
+			port: Number(process.env.DB_PORT || 3306),
+			dialect: "mysql",
+			logging: false,
+			pool: { max: 5, min: 0, idle: 10000 },
+		}
+	);
+}
 
 import UserModel from "./User.js";
 import WorkoutModel from "./Workout.js";
