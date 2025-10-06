@@ -34,18 +34,26 @@ const Dashboard = () => {
 	const [stats, setStats] = useState(null);
 	const [myProgs, setMyProgs] = useState([]);
 	const [recent, setRecent] = useState([]);
-
 	const [activeProgramme, setActiveProgramme] = useState(null);
 
-	const reloadStats = async () => {
+	const reloadAll = async () => {
 		if (!token) return;
+		setLoading(true);
 		try {
-			const [s, p] = await Promise.allSettled([
+			const [s, p, h] = await Promise.allSettled([
 				api.get("/api/stats/me"),
 				api.get("/api/enrollments/mine"),
+				api.get("/api/history?limit=10"),
 			]);
 			if (s.status === "fulfilled") setStats(s.value.data);
 			if (p.status === "fulfilled") setMyProgs(p.value.data || []);
+			if (h.status === "fulfilled") {
+				// myHistory renvoie { data: rows, pagination: {...} }
+				const payload = h.value.data;
+				setRecent(
+					Array.isArray(payload?.data) ? payload.data : payload || []
+				);
+			}
 		} finally {
 			setLoading(false);
 		}
@@ -53,8 +61,7 @@ const Dashboard = () => {
 
 	useEffect(() => {
 		if (!token) return;
-		setLoading(true);
-		reloadStats();
+		reloadAll();
 	}, [token]);
 
 	const sessionsTotal = stats?.totals?.sessions ?? 0;
@@ -73,7 +80,8 @@ const Dashboard = () => {
 	const goPrograms = () => navigate("/programs");
 	const goCreate = () => navigate("/create-program");
 
-	const featured = useMemo(() => (myProgs || []).slice(0, 3), [myProgs]);
+	// ✅ Affiche TOUTES les inscriptions (plus de slice(0,3))
+	const enrolledList = useMemo(() => myProgs || [], [myProgs]);
 
 	if (!user) {
 		return (
@@ -199,7 +207,7 @@ const Dashboard = () => {
 						<SkeletonCard />
 						<SkeletonCard />
 					</div>
-				) : !myProgs?.length ? (
+				) : !enrolledList?.length ? (
 					<div className="empty">
 						Tu n’es inscrit à aucun programme. Parcours la
 						bibliothèque pour commencer.
@@ -214,7 +222,7 @@ const Dashboard = () => {
 					</div>
 				) : (
 					<div className="grid">
-						{featured.map((p) => (
+						{enrolledList.map((p) => (
 							<article
 								className="dash-card program-card"
 								key={p.id}
@@ -250,7 +258,7 @@ const Dashboard = () => {
 				)}
 			</section>
 
-			{/* DERNIÈRES ACTIVITÉS (/api/history) */}
+			{/* DERNIÈRES ACTIVITÉS (via /api/history?limit=10) */}
 			<section className="recent">
 				<h3>Dernières activités</h3>
 				{loading ? (
@@ -264,11 +272,23 @@ const Dashboard = () => {
 						{recent.map((r, i) => (
 							<li key={i}>
 								<span className="when">
-									{new Date(r.createdAt).toLocaleString()}
+									{new Date(
+										r.performedAt || r.createdAt
+									).toLocaleString()}
 								</span>
 								<span className="txt">
-									{r.title || r.exercice?.name || "Séance"} —{" "}
-									{r.reps || r.durationMin || ""}
+									{/* Priorité: Programme > Exercice > fallback */}
+									{(r.Programme?.title ||
+										r.Exercice?.name ||
+										"Séance") +
+										" — " +
+										(r.durationMin
+											? `${r.durationMin} min`
+											: r.weightUsed
+											? `Poids: ${r.weightUsed}`
+											: r.notes
+											? r.notes
+											: "")}
 								</span>
 							</li>
 						))}
@@ -287,8 +307,7 @@ const Dashboard = () => {
 					onClose={async (refresh = false) => {
 						setActiveProgramme(null);
 						if (refresh) {
-							setLoading(true);
-							await reloadStats();
+							await reloadAll();
 						}
 					}}
 				/>
