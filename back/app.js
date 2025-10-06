@@ -119,9 +119,9 @@ if (syncMode === "force") syncOptions = { force: true };
 if (syncMode === "alter") syncOptions = { alter: true };
 
 db.sequelize
-	.sync(syncOptions)
+	.sync()
 	.then(() => {
-		console.log("✅ Base synchronisée !", syncOptions);
+		console.log("✅ Base synchronisée !");
 		app.listen(PORT, () =>
 			console.log(`🚀 Serveur lancé : http://localhost:${PORT}`)
 		);
