@@ -1,12 +1,12 @@
 // back/scripts/seed.js
 import "dotenv/config.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { db } from "../models/index.js";
 
 const RESET = process.env.SEED_RESET === "1"; // si "1" => TRUNCATE/RESET
 
 async function upsertUser({ name, email, password, role = "client" }) {
-	const hash = await bcrypt.hash(password, 10);
+	const hash = bcrypt.hashSync("admin123", 10);
 	const [user] = await db.User.findOrCreate({
 		where: { email },
 		defaults: { name, email, password: hash, role },
