@@ -29,14 +29,13 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 
-// ---------- View engine (Admin) ----------
+// ---------- View engine (Admin)
 app.engine(
 	"hbs",
 	engine({
 		extname: ".hbs",
 		helpers: {
 			eq: (a, b) => a === b,
-			// barre de stats : 8px par unité, bornée à 150px
 			calcHeight: (v) => Math.min(150, (Number(v) || 0) * 8),
 		},
 	})
@@ -45,16 +44,21 @@ app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 app.use("/public", express.static(path.join(__dirname, "public")));
 
-// ---------- Sécurité & middlewares globaux ----------
+// ---------- Sécurité & middlewares globaux
 app.set("trust proxy", 1);
 app.use(helmet({ contentSecurityPolicy: false }));
+
+const isProd = (process.env.NODE_ENV || "development") === "production";
 
 app.use(
 	session({
 		secret: process.env.SESSION_SECRET || "change-me-session",
 		resave: false,
 		saveUninitialized: false,
-		cookie: { sameSite: "lax", secure: false },
+		cookie: {
+			sameSite: "lax",
+			secure: isProd,
+		},
 	})
 );
 app.use(flash());
@@ -92,7 +96,7 @@ const origins = (
 
 const corsMiddleware = cors({
 	origin(origin, cb) {
-		if (!origin) return cb(null, true);
+		if (!origin) return cb(null, true); // requêtes server-to-server
 		if (origins.includes(origin)) return cb(null, true);
 		return cb(new Error("CORS: origin non autorisée"));
 	},
@@ -111,24 +115,32 @@ app.use("/api/history", historyRoutes);
 app.use("/api/enrollments", enrollmentRoutes);
 app.use("/api/stats", statsRoutes);
 
-// ---------- Démarrage + sync DB ----------
+// ---------- Démarrage ----------
 const PORT = process.env.PORT || 5000;
-const syncMode = process.env.DB_SYNC || "safe";
-let syncOptions = {};
-if (syncMode === "force") syncOptions = { force: true };
-if (syncMode === "alter") syncOptions = { alter: true };
 
-db.sequelize
-	.sync()
-	.then(() => {
-		console.log("✅ Base synchronisée !");
+(async () => {
+	try {
+		if (isProd) {
+			// ✅ En prod : juste vérifier la connexion
+			await db.sequelize.authenticate();
+			console.log("✅ DB OK (authenticate)");
+		} else {
+			// 🛠 En dev : sync optionnel via DB_SYNC (force/alter/safe)
+			const mode = process.env.DB_SYNC || "safe";
+			let syncOptions = {};
+			if (mode === "force") syncOptions = { force: true };
+			if (mode === "alter") syncOptions = { alter: true };
+			await db.sequelize.sync(syncOptions);
+			console.log("✅ Base synchronisée !", syncOptions);
+		}
+
 		app.listen(PORT, () =>
 			console.log(`🚀 Serveur lancé : http://localhost:${PORT}`)
 		);
-	})
-	.catch((err) => {
-		console.error("❌ Erreur de synchronisation :", err);
+	} catch (err) {
+		console.error("❌ Erreur de démarrage :", err);
 		process.exit(1);
-	});
+	}
+})();
 
 export default app;
