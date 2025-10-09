@@ -123,7 +123,7 @@ const Home = () => {
 				<div className="steps">
 					<div className="step">
 						<div className="num">1</div>
-						<h4>Crée ton compte</h4>
+						<h4>Créer ton compte</h4>
 						<p>En quelques clics, sans friction.</p>
 					</div>
 					<div className="step">

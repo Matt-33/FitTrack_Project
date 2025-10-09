@@ -1,0 +1,248 @@
+@use "../styles/variables" as v;
+
+/* Backdrop sombre + légère blur */
+.modal-backdrop {
+	position: fixed;
+	inset: 0;
+	background: rgba(0, 0, 0, 0.55);
+	backdrop-filter: blur(2px);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 16px;
+	z-index: 1000;
+	animation: modal-fade 140ms ease-out;
+}
+
+/* Conteneur de la modale */
+.modal {
+	width: 560px;
+	max-width: 96vw;
+	max-height: 86vh;
+	display: grid;
+	grid-template-rows: auto 1fr auto;
+
+	background: linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.02),
+			rgba(255, 255, 255, 0)
+		),
+		#121212;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	border-radius: 16px;
+	color: v.$text-color;
+	box-shadow: 0 18px 60px rgba(0, 0, 0, 0.45);
+	overflow: hidden;
+	animation: modal-pop 160ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Header / Footer */
+.modal-header,
+.modal-footer {
+	padding: 12px 16px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	background: rgba(255, 255, 255, 0.02);
+}
+
+.modal-header {
+	border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+	gap: 10px;
+
+	h3 {
+		margin: 0;
+		font-size: 18px;
+		font-weight: 800;
+		letter-spacing: 0.2px;
+	}
+	.sub {
+		margin: 0;
+		font-size: 12.5px;
+		opacity: 0.8;
+	}
+}
+
+/* Bouton fermer (icone X) */
+.modal-close {
+	appearance: none;
+	border: 0;
+	background: transparent;
+	color: #e5e7eb;
+	width: 34px;
+	height: 34px;
+	border-radius: 10px;
+	display: grid;
+	place-items: center;
+	cursor: pointer;
+	transition: background 120ms ease, transform 60ms ease;
+
+	&:hover {
+		background: rgba(255, 255, 255, 0.06);
+	}
+	&:active {
+		transform: translateY(1px);
+	}
+}
+
+/* Corps de la modale */
+.modal-body {
+	padding: 14px 16px;
+	overflow: auto;
+}
+
+/* Détails de l’activité (liste) */
+.activity-details {
+	display: grid;
+	gap: 8px;
+
+	.row {
+		display: flex;
+		gap: 12px;
+		padding: 10px 0;
+		border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+	}
+	.row:last-child {
+		border-bottom: none;
+	}
+
+	.label {
+		width: 170px;
+		min-width: 170px;
+		color: #aab1bb;
+		font-size: 13px;
+	}
+	.value {
+		flex: 1;
+		font-weight: 600;
+		color: #e6e9ef;
+
+		.note {
+			font-weight: 400;
+			opacity: 0.9;
+		}
+	}
+}
+
+/* Tableau des sets / exos si présent */
+.activity-table {
+	width: 100%;
+	border-collapse: separate;
+	border-spacing: 0;
+	overflow: hidden;
+	border-radius: 12px;
+	border: 1px solid rgba(255, 255, 255, 0.08);
+
+	th,
+	td {
+		text-align: left;
+		padding: 10px 12px;
+		font-size: 14px;
+	}
+	thead th {
+		background: rgba(255, 255, 255, 0.03);
+		color: #e7e7e7;
+		border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+		font-weight: 700;
+	}
+	tbody tr {
+		background: rgba(255, 255, 255, 0.015);
+	}
+	tbody tr + tr td {
+		border-top: 1px solid rgba(255, 255, 255, 0.06);
+	}
+	.tag {
+		display: inline-block;
+		padding: 2px 8px;
+		border-radius: 999px;
+		border: 1px solid rgba(255, 255, 255, 0.12);
+		background: rgba(255, 255, 255, 0.05);
+		font-size: 12px;
+	}
+}
+
+/* Footer actions */
+.modal-footer {
+	border-top: 1px solid rgba(255, 255, 255, 0.08);
+	gap: 8px;
+
+	.btn {
+		border: 0;
+		border-radius: 10px;
+		padding: 0.6rem 0.9rem;
+		cursor: pointer;
+		font-weight: 700;
+		transition: filter 0.15s ease, transform 0.05s ease;
+		&:hover {
+			filter: brightness(1.05);
+		}
+		&:active {
+			transform: translateY(1px);
+		}
+	}
+
+	.btn-primary {
+		background: v.$primary-color;
+		color: #fff;
+	}
+	.btn-ghost {
+		background: transparent;
+		color: #e5e7eb;
+		border: 1px solid #2f2f2f;
+	}
+}
+
+/* Messages d'erreur */
+.error {
+	color: #fecaca;
+	background: rgba(185, 28, 28, 0.14);
+	border: 1px solid rgba(239, 68, 68, 0.35);
+	padding: 8px 10px;
+	border-radius: 8px;
+}
+
+/* Scrollbar (webkit) dans le corps */
+.modal-body {
+	&::-webkit-scrollbar {
+		width: 10px;
+	}
+	&::-webkit-scrollbar-track {
+		background: rgba(255, 255, 255, 0.04);
+		border-radius: 10px;
+	}
+	&::-webkit-scrollbar-thumb {
+		background: rgba(255, 255, 255, 0.18);
+		border-radius: 10px;
+	}
+}
+
+/* Animations */
+@keyframes modal-fade {
+	from {
+		opacity: 0;
+	}
+	to {
+		opacity: 1;
+	}
+}
+@keyframes modal-pop {
+	from {
+		transform: translateY(6px) scale(0.98);
+		opacity: 0.96;
+	}
+	to {
+		transform: translateY(0) scale(1);
+		opacity: 1;
+	}
+}
+
+/* Petites tailles */
+@media (max-width: 480px) {
+	.modal {
+		border-radius: 12px;
+	}
+	.activity-details .label {
+		width: 120px;
+		min-width: 120px;
+	}
+}

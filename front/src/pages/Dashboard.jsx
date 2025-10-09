@@ -5,6 +5,7 @@ import { api } from "../lib/api";
 import { useNavigate } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import WorkoutSession from "../components/WorkoutSession";
+import ActivityModal from "../components/ActivityModal"; // ✅ NEW
 
 function initials(name = "") {
 	return (
@@ -36,6 +37,9 @@ const Dashboard = () => {
 	const [recent, setRecent] = useState([]);
 	const [activeProgramme, setActiveProgramme] = useState(null);
 
+	// ✅ NEW: id de l'activité sélectionnée (pour ouvrir la modale)
+	const [selectedHistoryId, setSelectedHistoryId] = useState(null);
+
 	const reloadAll = async () => {
 		if (!token) return;
 		setLoading(true);
@@ -48,7 +52,6 @@ const Dashboard = () => {
 			if (s.status === "fulfilled") setStats(s.value.data);
 			if (p.status === "fulfilled") setMyProgs(p.value.data || []);
 			if (h.status === "fulfilled") {
-				// myHistory renvoie { data: rows, pagination: {...} }
 				const payload = h.value.data;
 				setRecent(
 					Array.isArray(payload?.data) ? payload.data : payload || []
@@ -80,7 +83,6 @@ const Dashboard = () => {
 	const goPrograms = () => navigate("/programs");
 	const goCreate = () => navigate("/create-program");
 
-	// ✅ Affiche TOUTES les inscriptions (plus de slice(0,3))
 	const enrolledList = useMemo(() => myProgs || [], [myProgs]);
 
 	if (!user) {
@@ -165,15 +167,15 @@ const Dashboard = () => {
 									<path
 										className="bg"
 										d="M18 2.0845
-                       a 15.9155 15.9155 0 0 1 0 31.831
-                       a 15.9155 15.9155 0 0 1 0 -31.831"
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"
 									/>
 									<path
 										className="meter"
 										strokeDasharray={`${progress}, 100`}
 										d="M18 2.0845
-                       a 15.9155 15.9155 0 0 1 0 31.831
-                       a 15.9155 15.9155 0 0 1 0 -31.831"
+                     a 15.9155 15.9155 0 0 1 0 31.831
+                     a 15.9155 15.9155 0 0 1 0 -31.831"
 									/>
 									<text x="18" y="20.35" className="label">
 										{progress}%
@@ -268,31 +270,54 @@ const Dashboard = () => {
 						<div className="row" />
 					</div>
 				) : recent.length ? (
-					<ul className="history">
-						{recent.map((r, i) => (
-							<li key={i}>
-								<span className="when">
-									{new Date(
-										r.performedAt || r.createdAt
-									).toLocaleString()}
-								</span>
-								<span className="txt">
-									{/* Priorité: Programme > Exercice > fallback */}
-									{(r.Programme?.title ||
-										r.Exercice?.name ||
-										"Séance") +
-										" — " +
-										(r.durationMin
-											? `${r.durationMin} min`
-											: r.weightUsed
-											? `Poids: ${r.weightUsed}`
-											: r.notes
-											? r.notes
-											: "")}
-								</span>
-							</li>
-						))}
-					</ul>
+					<div
+						className="history-cards"
+						style={{ display: "grid", gap: 12 }}
+					>
+						{recent.map((r) => {
+							const dateStr = new Date(
+								r.performedAt || r.createdAt
+							).toLocaleString();
+							const title =
+								r.Programme?.title ||
+								r.Exercice?.name ||
+								"Séance";
+							const subtitle = r.durationMin
+								? `${r.durationMin} min`
+								: r.weightUsed
+								? `Poids: ${r.weightUsed}`
+								: r.notes
+								? r.notes
+								: "";
+
+							return (
+								<div
+									key={r.id}
+									className="activity-card"
+									onClick={() => setSelectedHistoryId(r.id)}
+									role="button"
+									tabIndex={0}
+									onKeyDown={(e) =>
+										e.key === "Enter"
+											? setSelectedHistoryId(r.id)
+											: null
+									}
+								>
+									<div>
+										<div className="activity-title">
+											{title}
+										</div>
+										<div className="activity-meta">
+											{dateStr}
+										</div>
+									</div>
+									<div className="activity-meta">
+										{subtitle}
+									</div>
+								</div>
+							);
+						})}
+					</div>
 				) : (
 					<div className="empty small">
 						Aucune activité récente à afficher.
@@ -310,6 +335,14 @@ const Dashboard = () => {
 							await reloadAll();
 						}
 					}}
+				/>
+			)}
+
+			{/* Modale détail d'activité */}
+			{selectedHistoryId && (
+				<ActivityModal
+					id={selectedHistoryId}
+					onClose={() => setSelectedHistoryId(null)}
 				/>
 			)}
 		</div>
