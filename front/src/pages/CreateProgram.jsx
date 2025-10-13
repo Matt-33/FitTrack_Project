@@ -20,8 +20,7 @@ const CreateProgram = () => {
 	const [exercices, setExercices] = useState([]);
 	const [loadingExercices, setLoadingExercices] = useState(true);
 
-	// Chaque ligne peut être en "mode création"
-	const [rows, setRows] = useState([]); // {exerciceId, orderIndex, reps, restSec, createMode?, newName?, creating?}
+	const [rows, setRows] = useState([]);
 
 	const [err, setErr] = useState("");
 	const [submitting, setSubmitting] = useState(false);
@@ -34,7 +33,6 @@ const CreateProgram = () => {
 				);
 				setExercices(data.data || data || []);
 			} catch {
-				// non bloquant : on peut créer des exercices inline
 			} finally {
 				setLoadingExercices(false);
 			}
@@ -57,7 +55,7 @@ const CreateProgram = () => {
 				orderIndex: (r?.length || 0) + 1,
 				reps: "",
 				restSec: 90,
-				createMode: exercices.length === 0, // si aucune donnée, on ouvre direct la création
+				createMode: exercices.length === 0,
 				newName: "",
 				creating: false,
 			},
@@ -94,11 +92,9 @@ const CreateProgram = () => {
 		}
 		updateRow(i, "creating", true);
 		try {
-			// backend minimal : { name } suffit (adapter si ton modèle requiert d’autres champs)
 			const { data } = await api.post("/api/exercices", { name });
-			const created = data?.exercice || data; // selon ta réponse
+			const created = data?.exercice || data;
 			if (!created?.id) throw new Error("Création échouée");
-			// Ajoute à la liste et sélectionne
 			setExercices((list) => [...list, created]);
 			setRows((r) =>
 				r.map((row, idx) =>

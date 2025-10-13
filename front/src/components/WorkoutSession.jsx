@@ -9,13 +9,10 @@ export default function WorkoutSession({ programme, onClose }) {
 	const [loading, setLoading] = useState(true);
 	const [saving, setSaving] = useState(false);
 	const [full, setFull] = useState(null);
-
-	// chrono
 	const [elapsed, setElapsed] = useState(0);
 	const startedAtRef = useRef(Date.now());
 	const intervalRef = useRef(null);
 
-	// entrées utilisateur par exercice
 	const [entries, setEntries] = useState([]);
 
 	useEffect(() => {
@@ -38,7 +35,6 @@ export default function WorkoutSession({ programme, onClose }) {
 			}
 		})();
 
-		// démarrer chrono
 		intervalRef.current = setInterval(
 			() =>
 				setElapsed(
@@ -47,7 +43,6 @@ export default function WorkoutSession({ programme, onClose }) {
 			1000
 		);
 		return () => clearInterval(intervalRef.current);
-		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [programme.id]);
 
 	const mmss = useMemo(() => {
@@ -61,8 +56,6 @@ export default function WorkoutSession({ programme, onClose }) {
 			arr.map((e, idx) => (idx === i ? { ...e, [field]: value } : e))
 		);
 	};
-
-	// Construit le champ notes pour le back (pas de champ "reps" côté API)
 	const buildNotes = ({ reps, notes }) => {
 		const parts = [];
 		if (reps && reps.trim()) parts.push(`reps=${reps.trim()}`);
@@ -76,7 +69,6 @@ export default function WorkoutSession({ programme, onClose }) {
 			const durationMin = Math.max(1, Math.round(elapsed / 60));
 			const performedAt = new Date(startedAtRef.current).toISOString();
 
-			// 1) entrée "session" (programme + durée)
 			const sessionPayload = {
 				programmeId: programme.id,
 				durationMin,
@@ -84,24 +76,22 @@ export default function WorkoutSession({ programme, onClose }) {
 				notes: "Session terminée",
 			};
 
-			// 2) une entrée par exercice
 			const exercisePayloads = entries
 				.filter((e) => e.exerciceId)
 				.map((e) => ({
 					programmeId: programme.id,
 					exerciceId: e.exerciceId,
-					weightUsed: e.weightKg ? String(e.weightKg) : null, // back attend une string
-					notes: buildNotes(e), // on glisse les reps ici
+					weightUsed: e.weightKg ? String(e.weightKg) : null,
+					notes: buildNotes(e),
 					performedAt,
 				}));
 
-			// On envoie tout (la session + chaque exo)
 			await Promise.all([
 				api.post("/api/history", sessionPayload),
 				...exercisePayloads.map((p) => api.post("/api/history", p)),
 			]);
 
-			onClose(true); // fermer + refresh stats dans le dashboard
+			onClose(true);
 		} catch (e) {
 			alert(
 				e?.response?.data?.message || "Erreur lors de l’enregistrement"

@@ -1,6 +1,5 @@
 @use "../styles/variables" as v;
 
-/* Backdrop sombre + légère blur */
 .modal-backdrop {
 	position: fixed;
 	inset: 0;
@@ -14,7 +13,6 @@
 	animation: modal-fade 140ms ease-out;
 }
 
-/* Conteneur de la modale */
 .modal {
 	width: 560px;
 	max-width: 96vw;
@@ -63,7 +61,6 @@
 	}
 }
 
-/* Bouton fermer (icone X) */
 .modal-close {
 	appearance: none;
 	border: 0;
@@ -85,13 +82,11 @@
 	}
 }
 
-/* Corps de la modale */
 .modal-body {
 	padding: 14px 16px;
 	overflow: auto;
 }
 
-/* Détails de l’activité (liste) */
 .activity-details {
 	display: grid;
 	gap: 8px;
@@ -124,7 +119,6 @@
 	}
 }
 
-/* Tableau des sets / exos si présent */
 .activity-table {
 	width: 100%;
 	border-collapse: separate;
@@ -161,7 +155,6 @@
 	}
 }
 
-/* Footer actions */
 .modal-footer {
 	border-top: 1px solid rgba(255, 255, 255, 0.08);
 	gap: 8px;
@@ -201,7 +194,6 @@
 	border-radius: 8px;
 }
 
-/* Scrollbar (webkit) dans le corps */
 .modal-body {
 	&::-webkit-scrollbar {
 		width: 10px;
@@ -216,7 +208,6 @@
 	}
 }
 
-/* Animations */
 @keyframes modal-fade {
 	from {
 		opacity: 0;
@@ -236,7 +227,6 @@
 	}
 }
 
-/* Petites tailles */
 @media (max-width: 480px) {
 	.modal {
 		border-radius: 12px;

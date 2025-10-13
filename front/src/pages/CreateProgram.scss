@@ -1,6 +1,5 @@
 @use "../styles/variables" as v;
 
-/* ===== Create Program ===== */
 .create-program {
 	max-width: 980px;
 	margin: 2rem auto;
@@ -27,7 +26,6 @@
 		padding: 1.25rem;
 	}
 
-	/* Card/form container */
 	.form {
 		background: radial-gradient(
 				900px 360px at 85% -15%,
@@ -120,10 +118,6 @@
 			margin-top: 0.25rem;
 		}
 
-		/* Ligne d'exercice
-       - mode sélection:   select | "Nouveau" | ordre | reps | repos | Suppr
-       - mode création:    new-ex (input + actions) | ordre | reps | repos | Suppr
-    */
 		.exercise-row {
 			display: grid;
 			grid-template-columns: 2fr auto 0.7fr 1fr 0.7fr auto;
@@ -160,13 +154,11 @@
 		}
 	}
 
-	/* ===== Actions ===== */
 	.actions {
 		display: flex;
 		justify-content: flex-end;
 	}
 
-	/* ===== Buttons ===== */
 	.btn {
 		border: 0;
 		border-radius: 10px;
@@ -221,7 +213,6 @@
 		}
 	}
 
-	/* ===== Responsive ===== */
 	@media (max-width: v.$breakpoint-desktop) {
 		.form-row.two-cols {
 			grid-template-columns: 1fr;

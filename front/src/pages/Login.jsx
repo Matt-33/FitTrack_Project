@@ -58,8 +58,8 @@ function evaluateStrength(pwd, email = "") {
 }
 
 const Login = () => {
-	const [mode, setMode] = useState("login"); // "login" | "register"
-	const [name, setName] = useState(""); // mappe sur 'name' en BDD (inscription)
+	const [mode, setMode] = useState("login");
+	const [name, setName] = useState("");
 	const [email, setEmail] = useState("");
 	const [password, setPassword] = useState("");
 	const [showPwd, setShowPwd] = useState(false);

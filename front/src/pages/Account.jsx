@@ -10,7 +10,7 @@ const Account = () => {
 	const { toast } = useToast();
 
 	const [name, setName] = useState(user?.name || "");
-	const [email, setEmail] = useState(user?.email || ""); // affichage, editable si tu veux
+	const [email, setEmail] = useState(user?.email || "");
 	const [avatarUrl, setAvatarUrl] = useState(user?.avatarUrl || "");
 	const [bio, setBio] = useState(user?.bio || "");
 	const [saving, setSaving] = useState(false);
@@ -35,7 +35,6 @@ const Account = () => {
 				name,
 				avatarUrl: avatarUrl || null,
 				bio: bio || null,
-				// email // dé-commente si tu souhaites activer l'édition d'email
 			});
 			replaceUser(data.user);
 			toast.success("Profil mis à jour ✅");
@@ -100,10 +99,7 @@ const Account = () => {
 					</div>
 					<div className="row">
 						<label>Email</label>
-						<input
-							value={email}
-							disabled /* ou retire disabled si tu actives l’édition */
-						/>
+						<input value={email} disabled />
 					</div>
 					<div className="row">
 						<label>Avatar (URL)</label>

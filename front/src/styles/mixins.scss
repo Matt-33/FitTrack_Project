@@ -1,7 +1,6 @@
 @use "sass:color";
 @use "./variables.scss";
 
-// 🔄 Mixin pour le responsive design
 @mixin respond($breakpoint) {
 	@if $breakpoint == mobile {
 		@media (max-width: 480px) {
@@ -20,7 +19,6 @@
 	}
 }
 
-// 🎨 Boutons stylés
 @mixin button-style {
 	background: variables.$primary-color;
 	color: variables.$text-color;

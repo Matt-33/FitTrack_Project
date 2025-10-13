@@ -194,7 +194,7 @@
 			-webkit-line-clamp: 3;
 			-webkit-box-orient: vertical;
 			overflow: hidden;
-			min-height: 3.6em; // pour stabiliser la hauteur si description courte
+			min-height: 3.6em;
 		}
 
 		.footer {
@@ -256,7 +256,6 @@
 		}
 	}
 
-	/* Skeleton states */
 	@keyframes shimmer {
 		0% {
 			background-position: -500px 0;

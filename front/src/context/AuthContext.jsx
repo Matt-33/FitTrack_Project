@@ -4,7 +4,6 @@ import { api } from "../lib/api";
 export const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-	// état initial depuis localStorage
 	const [user, setUser] = useState(() => {
 		try {
 			const raw = localStorage.getItem("ft_user");
@@ -15,7 +14,6 @@ export const AuthProvider = ({ children }) => {
 	});
 	const [token, setToken] = useState(() => localStorage.getItem("ft_token"));
 
-	// garder l’en-tête Authorization d’axios synchronisé
 	useEffect(() => {
 		if (token) {
 			api.defaults.headers.common.Authorization = `Bearer ${token}`;

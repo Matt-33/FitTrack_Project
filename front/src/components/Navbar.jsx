@@ -17,7 +17,6 @@ const Navbar = () => {
 		closeMenu();
 	};
 
-	// Fermer au clavier (Esc) et quand on élargit l’écran
 	useEffect(() => {
 		const onKey = (e) => e.key === "Escape" && closeMenu();
 		const onResize = () => {

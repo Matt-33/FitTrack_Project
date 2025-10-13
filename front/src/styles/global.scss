@@ -8,7 +8,8 @@
 }
 
 body {
-	font-family: "Arial", sans-serif;
+	font-family: "Inter", system-ui, -apple-system, Segoe UI, Roboto, Arial,
+		sans-serif;
 	background: variables.$background-color;
 	color: variables.$text-color;
 }
