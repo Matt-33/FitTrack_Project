@@ -73,7 +73,7 @@ export const dashboard = async (req, res) => {
 		}),
 	]);
 
-	// Normalisation des séries 7 jours (labels & valeurs)
+	// Normalisation des séries 7 jours
 	const days = Array.from({ length: 7 }).map((_, i) => {
 		const d = new Date(start7);
 		d.setDate(start7.getDate() + i);

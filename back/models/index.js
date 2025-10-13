@@ -12,14 +12,12 @@ const DB_URL =
 let sequelize;
 
 if (DB_URL) {
-	// Ex: mysql://root:pass@mysql.railway.internal:3306/railway
 	sequelize = new Sequelize(DB_URL, {
 		dialect: "mysql",
 		logging: false,
 		pool: { max: 5, min: 0, idle: 10000 },
 	});
 } else {
-	// Fallback local (env .env de dev)
 	sequelize = new Sequelize(
 		process.env.DB_NAME,
 		process.env.DB_USER,
@@ -84,7 +82,6 @@ Programme.belongsToMany(User, {
 	otherKey: "userId",
 });
 
-/* 🔹 AJOUTER CES ASSOCIATIONS POUR POUVOIR INCLURE DEPUIS LE PIVOT */
 ProgrammeUser.belongsTo(User, { foreignKey: "userId" });
 ProgrammeUser.belongsTo(Programme, { foreignKey: "programmeId" });
 User.hasMany(ProgrammeUser, { foreignKey: "userId", as: "enrollments" });

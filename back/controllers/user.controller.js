@@ -44,8 +44,6 @@ export const updateProfile = async (req, res) => {
 		const user = await db.User.findByPk(req.user.id);
 		if (!user)
 			return res.status(404).json({ message: "Utilisateur non trouvé." });
-
-		// Si email changé : vérifier l'unicité
 		if (parsed.data.email && parsed.data.email !== user.email) {
 			const exists = await db.User.findOne({
 				where: { email: parsed.data.email },

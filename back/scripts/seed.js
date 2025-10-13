@@ -3,7 +3,7 @@ import "dotenv/config.js";
 import bcrypt from "bcryptjs";
 import { db } from "../models/index.js";
 
-const RESET = process.env.SEED_RESET === "1"; // si "1" => TRUNCATE/RESET
+const RESET = process.env.SEED_RESET === "1";
 
 async function upsertUser({ name, email, password, role = "client" }) {
 	const hash = bcrypt.hashSync("admin123", 10);
@@ -11,7 +11,6 @@ async function upsertUser({ name, email, password, role = "client" }) {
 		where: { email },
 		defaults: { name, email, password: hash, role },
 	});
-	// si l'user existait déjà, on peut le mettre à jour pour garder le dataset cohérent
 	if (!user.password || user.role !== role || user.name !== name) {
 		await user.update({ name, role, password: hash });
 	}
@@ -38,7 +37,6 @@ async function upsertProgramme({
 		where: { title },
 		defaults: { title, coachId, level, goal, description, isPublished },
 	});
-	// si coachId ou autres champs ont changé, on les remet d’équerre
 	await p.update({ coachId, level, goal, description, isPublished });
 	return p;
 }
@@ -54,7 +52,6 @@ async function linkProgrammeExercice(
 		where: { programmeId, exerciceId },
 		defaults: { programmeId, exerciceId, orderIndex, reps, restSec },
 	});
-	// assurer les derniers champs
 	await row.update({ orderIndex, reps, restSec });
 	return row;
 }
